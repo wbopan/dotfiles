@@ -80,23 +80,6 @@ setopt hist_ignore_space   # Ignore commands that start with a space
 setopt hist_reduce_blanks  # Strip superfluous blanks
 
 ###############################################################################
-# COMPLETION SYSTEM INITIALIZATION
-###############################################################################
-# Load & initialize the completion system
-autoload -Uz compinit
-# Check if $_zcompdump is older than 20 hours (Nmh-20).
-_comp_files=($_zcompdump(Nmh-20))
-if (( $#_comp_files )); then
-  # Force re-creation of the dump file if it's too old
-  compinit -i -C -d "$_zcompdump"
-else
-  # Otherwise just load from the existing dump
-  compinit -i -d "$_zcompdump"
-  # Keep $_zcompdump fresh to avoid repeated regeneration
-  touch "$_zcompdump"
-fi
-
-###############################################################################
 # MISCELLANEOUS SETTINGS
 ###############################################################################
 # Disable Ctrl-S / Ctrl-Q flow control at the TTY level (alternative approach)
@@ -105,7 +88,6 @@ stty stop undef
 # Locale: ensure UTF-8 support
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-export EDITOR=vi
 
 ###############################################################################
 # CLEANUP TEMPORARY VARIABLES

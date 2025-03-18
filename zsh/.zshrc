@@ -70,7 +70,7 @@ has nvim && export EDITOR="nvim"
 ### Misc
 bindkey "^E" edit-command-line # Enable Ctrl+E to edit command in editor
 # Function to run commands in tmux
-texe() {
+tmr() {
     # Only run if tmux is installed
     if has tmux; then
         # Don't run if already inside tmux
@@ -78,19 +78,24 @@ texe() {
             # Get session name from current directory
             local session_name="${PWD:t}"
             
-            # Create a new session or attach to existing one with bash shell
-            tmux new-session -A -s "$session_name" -d /bin/bash
-            
-            # Make sure session exists before continuing
+            # Check if the session already exists
             if tmux has-session -t "$session_name" 2>/dev/null; then
-                # Send command to the first window, first pane
-                tmux send-keys -t "$session_name:0.0" "$*" C-m
-                
-                # Attach to the session
-                tmux attach -t "$session_name"
+                # If it exists, send the command to the session
+                if [[ -n "$*" ]]; then
+                    tmux send-keys -t "$session_name:0.0" "$*" C-m
+                fi
             else
-                echo "Failed to create tmux session"
+                # Create a new session in detached mode
+                tmux new-session -d -s "$session_name"
+                
+                # Send command to the first window if provided
+                if [[ -n "$*" ]]; then
+                    tmux send-keys -t "$session_name:0.0" "$*" C-m
+                fi
             fi
+            
+            # Attach to the session
+            tmux attach -t "$session_name"
         else
             echo "Already inside a tmux session"
         fi

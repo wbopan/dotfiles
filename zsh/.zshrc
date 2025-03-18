@@ -14,7 +14,7 @@ zinit light starship/starship
 zi ice from"gh-r" as"program" mv"docker* -> docker-compose" bpick"*linux*"
 zi light docker/compose
 zi ice wait lucid
-zi light oconnor663/zsh-sensible
+zi light bmpixel/dotfiles
 zi ice wait lucid
 zi light zsh-users/zsh-completions
 

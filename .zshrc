@@ -33,16 +33,6 @@ healthcheck() {
     done
 }
 
-### Initialize plugins
-has zoxide && eval "$(zoxide init zsh --cmd cd)"
-has eza && alias ls='eza' && alias tree='eza --tree'
-has fzf && source <(fzf --zsh)
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-has direnv && eval "$(direnv hook zsh)"
-has uv && eval "$(uv generate-shell-completion zsh)"
-has uvx && eval "$(uvx --generate-shell-completion zsh)"
-
-
 ### Common aliases
 alias l="ls"
 alias ll="ls -l"
@@ -68,3 +58,14 @@ has cursor && alias c="cursor"
 has tmux && alias tmc='tmux new -As ${PWD:t}'
 has nvim && alias vim="nvim"
 has docker-compose && alias dc="docker-compose"
+
+### Initialize plugins
+has zoxide && eval "$(zoxide init zsh --cmd cd)"
+has eza && alias ls='eza' && alias tree='eza --tree'
+has fzf && source <(fzf --zsh)
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+has direnv && eval "$(direnv hook zsh)"
+has uv && eval "$(uv generate-shell-completion zsh)"
+has uvx && eval "$(uvx --generate-shell-completion zsh)"
+has vim && export EDITOR="vim" 
+has nvim && export EDITOR="nvim"

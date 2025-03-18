@@ -1,20 +1,4 @@
 ###############################################################################
-# XDG-BASED CACHE SETUP FOR COMPLETION
-###############################################################################
-# Allow using XDG_CACHE_HOME if the matching zstyle is set.
-if zstyle -T ':zsh-utils:plugins:completion' use-xdg-basedirs; then
-  _cache_dir=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
-  [[ -d "$_cache_dir" ]] || mkdir -p "$_cache_dir"
-
-  _zcompdump="$_cache_dir/compdump"
-  _zcompcache="$_cache_dir/compcache"
-else
-  # Fallback to normal home-based files
-  _zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-  _zcompcache="${ZDOTDIR:-$HOME}/.zcompcache"
-fi
-
-###############################################################################
 # ESSENTIAL ZSH OPTIONS
 ###############################################################################
 # Completion behavior

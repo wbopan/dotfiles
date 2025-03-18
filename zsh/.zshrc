@@ -4,19 +4,16 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-zinit light zsh-users/zsh-autosuggestions
-zinit light zdharma-continuum/fast-syntax-highlighting
-zinit ice as"command" from"gh-r" \
+zi ice as"command" from"gh-r" \
           atclone"./starship init zsh > init.zsh; ./starship completions zsh > _starship" \
           atpull"%atclone" src"init.zsh"
-zinit light starship/starship
-
-zi ice from"gh-r" as"program" mv"docker* -> docker-compose" bpick"*linux*"
-zi light docker/compose
-zi ice wait lucid
+zi light starship/starship
 zi light bmpixel/dotfiles
+zi light zsh-users/zsh-autosuggestions
 zi ice wait lucid
 zi light zsh-users/zsh-completions
+zi ice wait lucid
+zi light zdharma-continuum/fast-syntax-highlighting
 
 # Load completions
 autoload -Uz compinit && compinit
@@ -69,3 +66,7 @@ has uv && eval "$(uv generate-shell-completion zsh)"
 has uvx && eval "$(uvx --generate-shell-completion zsh)"
 has vim && export EDITOR="vim" 
 has nvim && export EDITOR="nvim"
+
+### Misc
+bindkey "^E" edit-command-line # Enable Ctrl+E to edit command in editor
+

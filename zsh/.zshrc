@@ -69,4 +69,32 @@ has nvim && export EDITOR="nvim"
 
 ### Misc
 bindkey "^E" edit-command-line # Enable Ctrl+E to edit command in editor
-
+# Function to run commands in tmux
+texe() {
+    # Only run if tmux is installed
+    if has tmux; then
+        # Don't run if already inside tmux
+        if [[ -z $TMUX ]]; then
+            # Get session name from current directory
+            local session_name="${PWD:t}"
+            
+            # Create a new session or attach to existing one with bash shell
+            tmux new-session -A -s "$session_name" -d /bin/bash
+            
+            # Make sure session exists before continuing
+            if tmux has-session -t "$session_name" 2>/dev/null; then
+                # Send command to the first window, first pane
+                tmux send-keys -t "$session_name:0.0" "$*" C-m
+                
+                # Attach to the session
+                tmux attach -t "$session_name"
+            else
+                echo "Failed to create tmux session"
+            fi
+        else
+            echo "Already inside a tmux session"
+        fi
+    else
+        echo "tmux is not installed"
+    fi
+}

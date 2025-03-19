@@ -52,7 +52,6 @@ alias ssj='sudo journalctl -xeu'
 alias ssp='sudo systemctl stop'
 has code && alias c="code"
 has cursor && alias c="cursor"
-has tmux && alias tmc='tmux new -As ${PWD:t}'
 has nvim && alias vim="nvim"
 has docker-compose && alias dc="docker-compose"
 
@@ -70,36 +69,15 @@ has nvim && export EDITOR="nvim"
 ### Misc
 bindkey "^E" edit-command-line # Enable Ctrl+E to edit command in editor
 # Function to run commands in tmux
-tmr() {
-    # Only run if tmux is installed
-    if has tmux; then
-        # Don't run if already inside tmux
-        if [[ -z $TMUX ]]; then
-            # Get session name from current directory
-            local session_name="${PWD:t}"
-            
-            # Check if the session already exists
-            if tmux has-session -t "$session_name" 2>/dev/null; then
-                # If it exists, send the command to the session
-                if [[ -n "$*" ]]; then
-                    tmux send-keys -t "$session_name:0.0" "$*" C-m
-                fi
-            else
-                # Create a new session in detached mode
-                tmux new-session -d -s "$session_name"
-                
-                # Send command to the first window if provided
-                if [[ -n "$*" ]]; then
-                    tmux send-keys -t "$session_name:0.0" "$*" C-m
-                fi
-            fi
-            
-            # Attach to the session
-            tmux attach -t "$session_name"
-        else
-            echo "Already inside a tmux session"
-        fi
-    else
-        echo "tmux is not installed"
-    fi
+tx() {
+  if [[ -n "$TMUX" ]]; then
+    return 0
+  fi
+
+  if [[ $# -eq 0 ]]; then
+    tmux new -As "${PWD:t}"
+  else
+    local window_name="run_${1}_$RANDOM"
+    tmux new-session -s "$window_name" "$*; $SHELL"
+  fi
 }

@@ -26,9 +26,6 @@ alias la 'ls -a'
 alias grep 'grep --color=auto'
 alias fgrep 'fgrep --color=auto'
 alias egrep 'egrep --color=auto'
-alias rm 'rm -i'
-alias cp 'cp -i'
-alias mv 'mv -i'
 alias mkdir 'mkdir -p'
 alias df 'df -h'
 alias du 'du -h'
@@ -54,4 +51,5 @@ has uv; and uv generate-shell-completion fish | source
 has uvx; and uvx --generate-shell-completion fish | source
 has vim; and set -x EDITOR "vim"
 has nvim; and set -x EDITOR "nvim"
+has batcat; and alias bat "batcat"
 has starship; and starship init fish | source

@@ -1,17 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# Define source (in dotfiles repo) and target (in home dir) pairs
-declare -A CONFIG_MAP
-CONFIG_MAP=(
-    ["fish/config.fish"]="$HOME/.config/fish/config.fish"
-    ["lazyvim/lazyvim.json"]="$HOME/.config/nvim/lazyvim.json" # Map JSON if needed
-    ["lazyvim/option.lua"]="$HOME/.config/nvim/lua/config/options.lua" # Assuming this maps to options.lua
-    ["lazyvim/plugins.lua"]="$HOME/.config/nvim/lua/plugins/plugins.lua"
-    ["tmux/.tmux.conf"]="$HOME/.tmux.conf"
-    ["zsh/.zshrc"]="$HOME/.zshrc"
+# Define source (in dotfiles repo) and target (in home dir) paths
+# Using indexed arrays for better compatibility with older bash versions
+SOURCE_PATHS=(
+    "fish/config.fish"
+    "lazyvim/lazyvim.json"
+    "lazyvim/option.lua"
+    "lazyvim/plugins.lua"
+    "tmux/.tmux.conf"
+    # Add more source paths here
+)
+
+TARGET_PATHS=(
+    "$HOME/.config/fish/config.fish"
+    "$HOME/.config/nvim/lazyvim.json"
+    "$HOME/.config/nvim/lua/config/options.lua"
+    "$HOME/.config/nvim/lua/plugins/plugins.lua"
+    "$HOME/.tmux.conf"
+    # Add corresponding target paths here, ensure order matches SOURCE_PATHS
 )
 
 # Function to create backup and link
@@ -95,9 +104,16 @@ echo "Script directory: $SCRIPT_DIR"
 echo "Home directory: $HOME"
 echo ""
 
-# Iterate over the config map and link files
-for src_rel in "${!CONFIG_MAP[@]}"; do
-    link_config "$src_rel" "${CONFIG_MAP[$src_rel]}"
+# Iterate over the arrays and link files
+num_configs=${#SOURCE_PATHS[@]}
+for (( i=0; i<${num_configs}; i++ )); do
+    src_rel="${SOURCE_PATHS[i]}"
+    tgt_path="${TARGET_PATHS[i]}"
+    if [ -n "$src_rel" ] && [ -n "$tgt_path" ]; then # Basic check to ensure pairs exist
+        link_config "$src_rel" "$tgt_path"
+    else
+        echo "[WARN] Skipping configuration index $i due to missing source or target path."
+    fi
 done
 
 echo "Dotfiles setup complete."

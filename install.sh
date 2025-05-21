@@ -130,7 +130,4 @@ bash "$SCRIPT_DIR/tmux/install_tpm.sh"
 echo "Running lazyvim/install_lazyvim.sh..."
 bash "$SCRIPT_DIR/lazyvim/install_lazyvim.sh"
 
-echo "Running lazyvim/install_npm.sh..."
-bash "$SCRIPT_DIR/lazyvim/install_npm.sh"
-
 echo "Dependency installation complete."

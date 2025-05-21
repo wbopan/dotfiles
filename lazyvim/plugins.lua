@@ -16,12 +16,13 @@ return {
     },
   },
   {
-    "zbirenbaum/copilot.lua",
-    opts = {
-      suggestion = {
-        auto_trigger = true,
-      },
-    },
+    "kylechui/nvim-surround",
+    version = "^3.0.0", 
+    event = "VeryLazy",
+    config = function()
+        require("nvim-surround").setup({
+        })
+    end
   },
   {
     "LazyVim/LazyVim",
@@ -30,11 +31,5 @@ return {
       list = false,
       fillchars = {},
     },
-  },
-  {
-    "vscode-neovim/vscode-multi-cursor.nvim",
-    -- event = "VeryLazy",
-    -- cond = not not vim.g.vscode,
-    opts = {},
   },
 }

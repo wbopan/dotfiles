@@ -3,6 +3,22 @@
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+# Parse command-line arguments
+YES_MODE=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --yes|-y)
+            YES_MODE=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--yes|-y]"
+            exit 1
+            ;;
+    esac
+done
+
 # Define source (in dotfiles repo) and target (in home dir) paths
 # Using indexed arrays for better compatibility with older bash versions
 SOURCE_PATHS=(
@@ -11,6 +27,8 @@ SOURCE_PATHS=(
     "lazyvim/option.lua"
     "lazyvim/plugins.lua"
     "tmux/.tmux.conf"
+    "kitty/kitty.conf"
+    "kitty/current-theme.conf"
     # Add more source paths here
 )
 
@@ -20,6 +38,8 @@ TARGET_PATHS=(
     "$HOME/.config/nvim/lua/config/options.lua"
     "$HOME/.config/nvim/lua/plugins/plugins.lua"
     "$HOME/.tmux.conf"
+    "$HOME/.config/kitty/kitty.conf"
+    "$HOME/.config/kitty/current-theme.conf"
     # Add corresponding target paths here, ensure order matches SOURCE_PATHS
 )
 
@@ -41,13 +61,18 @@ link_config() {
     # Ensure target directory exists
     if [ ! -d "$target_dir" ]; then
         echo "  [INFO] Target directory does not exist: $target_dir"
-        read -p "  Create directory? (y/N): " confirm_create_dir
-        if [[ "$confirm_create_dir" =~ ^[Yy]$ ]]; then
+        if [ "$YES_MODE" = true ]; then
             mkdir -p "$target_dir"
             echo "  [OK] Created directory: $target_dir"
         else
-            echo "  [SKIP] Skipping linking for $target as directory was not created."
-            return
+            read -p "  Create directory? (y/N): " confirm_create_dir
+            if [[ "$confirm_create_dir" =~ ^[Yy]$ ]]; then
+                mkdir -p "$target_dir"
+                echo "  [OK] Created directory: $target_dir"
+            else
+                echo "  [SKIP] Skipping linking for $target as directory was not created."
+                return
+            fi
         fi
     fi
 
@@ -61,8 +86,8 @@ link_config() {
         fi
 
         # Ask to backup
-        read -p "  Target '$target' exists. Backup? (y/N): " confirm_backup
-        if [[ "$confirm_backup" =~ ^[Yy]$ ]]; then
+        if [ "$YES_MODE" = true ]; then
+            # In yes mode, always backup existing files
             backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
             echo "  [INFO] Backing up existing file to $backup_path"
             mv "$target" "$backup_path"
@@ -71,18 +96,29 @@ link_config() {
                 return
             fi
         else
-            # Ask to remove if not backing up
-            read -p "  Remove existing '$target' without backup? (y/N): " confirm_remove
-            if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
-                echo "  [INFO] Removing existing file $target"
-                rm -rf "$target"
-                 if [ $? -ne 0 ]; then
-                    echo "  [ERROR] Failed to remove $target. Skipping."
+            read -p "  Target '$target' exists. Backup? (y/N): " confirm_backup
+            if [[ "$confirm_backup" =~ ^[Yy]$ ]]; then
+                backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
+                echo "  [INFO] Backing up existing file to $backup_path"
+                mv "$target" "$backup_path"
+                if [ $? -ne 0 ]; then
+                    echo "  [ERROR] Failed to back up $target. Skipping."
                     return
                 fi
             else
-                echo "  [SKIP] Did not back up or remove existing file. Skipping link."
-                return
+                # Ask to remove if not backing up
+                read -p "  Remove existing '$target' without backup? (y/N): " confirm_remove
+                if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
+                    echo "  [INFO] Removing existing file $target"
+                    rm -rf "$target"
+                     if [ $? -ne 0 ]; then
+                        echo "  [ERROR] Failed to remove $target. Skipping."
+                        return
+                    fi
+                else
+                    echo "  [SKIP] Did not back up or remove existing file. Skipping link."
+                    return
+                fi
             fi
         fi
     fi

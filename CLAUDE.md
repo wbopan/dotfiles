@@ -1,0 +1,59 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+This is a dotfiles repository for managing personal configuration files across different tools:
+- Fish shell configuration
+- LazyVim (Neovim) configuration
+- Tmux configuration
+- Kitty terminal configuration
+
+## Key Commands
+
+### Installation
+```bash
+# Install all dotfiles and dependencies
+./install.sh
+
+# Install with --yes mode (non-interactive, auto-backup existing files)
+./install.sh --yes
+
+# Install specific components
+bash tmux/install_tpm.sh      # Install Tmux Plugin Manager
+bash lazyvim/install_lazyvim.sh # Install LazyVim
+```
+
+### Fish Shell Commands
+```bash
+healthcheck  # Check if all required tools are installed
+tx           # Create/attach to tmux session (creates session named after current directory if no args)
+tx <command> # Run command in new tmux session
+```
+
+## Architecture
+
+The repository uses symbolic links to connect configuration files from this repository to their expected locations in the home directory:
+
+- `fish/config.fish` → `~/.config/fish/config.fish`
+- `lazyvim/lazyvim.json` → `~/.config/nvim/lazyvim.json`
+- `lazyvim/option.lua` → `~/.config/nvim/lua/config/options.lua`
+- `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`
+- `tmux/.tmux.conf` → `~/.tmux.conf`
+- `kitty/kitty.conf` → `~/.config/kitty/kitty.conf`
+- `kitty/current-theme.conf` → `~/.config/kitty/current-theme.conf`
+
+The main `install.sh` script:
+1. Creates symbolic links for all configuration files
+2. Backs up existing files with timestamps if they exist
+3. Runs dependency installation scripts for tmux and LazyVim
+
+## LazyVim Configuration
+
+The LazyVim setup includes:
+- Python language support
+- VSCode-like keybindings
+- Catppuccin theme with transparent background
+- nvim-surround plugin
+- Blink completion with super-tab preset

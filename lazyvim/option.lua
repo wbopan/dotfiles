@@ -6,3 +6,4 @@
 vim.opt.clipboard = ""
 vim.opt.spell = false             -- Disable spell check
 vim.g.snacks_animate = false
+vim.opt.list = false              -- Disable display of whitespace characters

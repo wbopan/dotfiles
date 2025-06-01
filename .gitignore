@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+Icon?
+
+# Temporary files
+*.log
+*.cache
+
+# Fish shell
+fish_variables

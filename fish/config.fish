@@ -40,11 +40,6 @@ has code; and alias c "code"
 has cursor; and alias c "cursor"
 has nvim; and alias vim "nvim"
 has docker-compose; and alias dc "docker-compose"
-has devcontainer; and alias dvc-up "devcontainer --workspace-folder . up"
-has devcontainer; and alias dvc-build "devcontainer --workspace-folder . build"
-has devcontainer; and alias dvc-shell "devcontainer exec --workspace-folder . fish"
-has devcontainer; and alias dvc-claude "devcontainer exec --workspace-folder . claude --dangerously-skip-permissions"
-
 # Initialize plugins
 has zoxide; and zoxide init fish --cmd cd | source
 has eza; and alias ls 'eza'; and alias tree 'eza --tree'
@@ -71,4 +66,33 @@ function tx
         set window_name "run_$argv[1]_"(random)
         tmux new-session -s $window_name "$argv; $SHELL"
     end
+end
+
+has devcontainer; and function dcc
+    # List of devcontainer subcommands
+    set devcontainer_commands up set-up build run-user-commands read-configuration outdated upgrade features templates exec
+    
+    if test (count $argv) -eq 0
+        devcontainer --workspace-folder .
+    else if test "$argv[1]" = "claude"
+        devcontainer exec --workspace-folder . claude --dangerously-skip-permissions $argv[2..]
+    else if contains "$argv[1]" $devcontainer_commands
+        devcontainer $argv --workspace-folder .
+    else
+        devcontainer exec --workspace-folder . $argv
+    end
+end
+
+# make-worktree function
+function make-worktree
+    if test (count $argv) -eq 0
+        echo "Usage: make-worktree <name>"
+        return 1
+    end
+    
+    set name $argv[1]
+    set current_dir (basename $PWD)
+    set worktree_path "$PWD-$name"
+    
+    git worktree add $worktree_path -b $name && cd $worktree_path
 end

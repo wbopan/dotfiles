@@ -14,13 +14,26 @@ This is a dotfiles repository for managing personal configuration files across d
 
 ### Installation
 ```bash
-# Install all dotfiles and dependencies
-./install.sh
-
-# Install with --yes mode (non-interactive, auto-backup existing files)
-./install.sh --yes
+# Show help and available options
+./install.sh --help
 
 # Install specific components
+./install.sh --fish      # Install fish shell configuration only
+./install.sh --tmux      # Install tmux configuration only
+./install.sh --kitty     # Install kitty terminal configuration only
+./install.sh --lazyvim   # Install LazyVim configuration only
+
+# Install all dotfiles and dependencies
+./install.sh --all
+
+# Combine flags for multiple components
+./install.sh --fish --tmux --kitty
+
+# Install with --yes mode (non-interactive, auto-backup existing files)
+./install.sh --yes --all
+./install.sh --yes --fish --tmux
+
+# Install individual dependencies manually
 bash tmux/install_tpm.sh      # Install Tmux Plugin Manager
 bash lazyvim/install_lazyvim.sh # Install LazyVim
 ```
@@ -57,3 +70,25 @@ The LazyVim setup includes:
 - Catppuccin theme with transparent background
 - nvim-surround plugin
 - Blink completion with super-tab preset
+
+## DevContainer Integration
+
+Add to your project's `.devcontainer/devcontainer.json`:
+
+```json
+{
+  "features": {
+    "https://github.com/panwenbo/dotfiles/tree/main/.devcontainer/features/dotfiles": {
+      "repository": "https://github.com/panwenbo/dotfiles.git",
+      "targetPath": "/home/vscode/.dotfiles",
+      "installDependencies": true
+    }
+  }
+}
+```
+
+The feature automatically:
+- Installs fish shell, tmux, and neovim
+- Clones your dotfiles repository
+- Runs the installer in non-interactive mode
+- Sets fish as the default shell

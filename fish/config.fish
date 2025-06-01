@@ -40,6 +40,10 @@ has code; and alias c "code"
 has cursor; and alias c "cursor"
 has nvim; and alias vim "nvim"
 has docker-compose; and alias dc "docker-compose"
+has devcontainer; and alias dvc-up "devcontainer --workspace-folder . up"
+has devcontainer; and alias dvc-build "devcontainer --workspace-folder . build"
+has devcontainer; and alias dvc-shell "devcontainer exec --workspace-folder . fish"
+has devcontainer; and alias dvc-claude "devcontainer exec --workspace-folder . claude --dangerously-skip-permissions"
 
 # Initialize plugins
 has zoxide; and zoxide init fish --cmd cd | source

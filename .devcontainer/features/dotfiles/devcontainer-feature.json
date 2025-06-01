@@ -1,0 +1,27 @@
+{
+  "id": "dotfiles",
+  "version": "1.0.0",
+  "name": "Personal Dotfiles",
+  "description": "Installs personal dotfiles configuration for fish, LazyVim, tmux, and kitty",
+  "documentationURL": "https://github.com/BMPixel/dotfiles",
+  "options": {
+    "repository": {
+      "type": "string",
+      "default": "https://github.com/BMPixel/dotfiles.git",
+      "description": "Git repository URL for your dotfiles"
+    },
+    "targetPath": {
+      "type": "string", 
+      "default": "/home/vscode/.dotfiles",
+      "description": "Target path where dotfiles will be cloned"
+    },
+    "installDependencies": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to install tmux and LazyVim dependencies"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

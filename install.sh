@@ -5,43 +5,107 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Parse command-line arguments
 YES_MODE=false
+INSTALL_FISH=false
+INSTALL_TMUX=false
+INSTALL_KITTY=false
+INSTALL_LAZYVIM=false
+INSTALL_ALL=false
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --yes|-y)
             YES_MODE=true
             shift
             ;;
+        --fish)
+            INSTALL_FISH=true
+            shift
+            ;;
+        --tmux)
+            INSTALL_TMUX=true
+            shift
+            ;;
+        --kitty)
+            INSTALL_KITTY=true
+            shift
+            ;;
+        --lazyvim)
+            INSTALL_LAZYVIM=true
+            shift
+            ;;
+        --all|-a)
+            INSTALL_ALL=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo "Options:"
+            echo "  --fish      Install fish shell configuration"
+            echo "  --tmux      Install tmux configuration"
+            echo "  --kitty     Install kitty terminal configuration"
+            echo "  --lazyvim   Install LazyVim configuration"
+            echo "  --all, -a   Install all configurations"
+            echo "  --yes, -y   Non-interactive mode (auto-backup existing files)"
+            echo "  --help, -h  Show this help message"
+            exit 0
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--yes|-y]"
+            echo "Use --help for usage information"
             exit 1
             ;;
     esac
 done
 
+# If --all is specified, enable all components
+if [ "$INSTALL_ALL" = true ]; then
+    INSTALL_FISH=true
+    INSTALL_TMUX=true
+    INSTALL_KITTY=true
+    INSTALL_LAZYVIM=true
+fi
+
+# If no specific flags are provided, show help and exit
+if [ "$INSTALL_FISH" = false ] && [ "$INSTALL_TMUX" = false ] && [ "$INSTALL_KITTY" = false ] && [ "$INSTALL_LAZYVIM" = false ]; then
+    echo "No installation targets specified."
+    echo "Use --help for usage information or --all to install everything."
+    exit 0
+fi
+
 # Define source (in dotfiles repo) and target (in home dir) paths
 # Using indexed arrays for better compatibility with older bash versions
-SOURCE_PATHS=(
-    "fish/config.fish"
-    "lazyvim/lazyvim.json"
-    "lazyvim/option.lua"
-    "lazyvim/plugins.lua"
-    "tmux/.tmux.conf"
-    "kitty/kitty.conf"
-    "kitty/current-theme.conf"
-    # Add more source paths here
-)
+SOURCE_PATHS=()
+TARGET_PATHS=()
 
-TARGET_PATHS=(
-    "$HOME/.config/fish/config.fish"
-    "$HOME/.config/nvim/lazyvim.json"
-    "$HOME/.config/nvim/lua/config/options.lua"
-    "$HOME/.config/nvim/lua/plugins/plugins.lua"
-    "$HOME/.tmux.conf"
-    "$HOME/.config/kitty/kitty.conf"
-    "$HOME/.config/kitty/current-theme.conf"
-    # Add corresponding target paths here, ensure order matches SOURCE_PATHS
-)
+# Add fish configuration if requested
+if [ "$INSTALL_FISH" = true ]; then
+    SOURCE_PATHS+=("fish/config.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/config.fish")
+fi
+
+# Add LazyVim configuration if requested
+if [ "$INSTALL_LAZYVIM" = true ]; then
+    SOURCE_PATHS+=("lazyvim/lazyvim.json")
+    SOURCE_PATHS+=("lazyvim/option.lua")
+    SOURCE_PATHS+=("lazyvim/plugins.lua")
+    TARGET_PATHS+=("$HOME/.config/nvim/lazyvim.json")
+    TARGET_PATHS+=("$HOME/.config/nvim/lua/config/options.lua")
+    TARGET_PATHS+=("$HOME/.config/nvim/lua/plugins/plugins.lua")
+fi
+
+# Add tmux configuration if requested
+if [ "$INSTALL_TMUX" = true ]; then
+    SOURCE_PATHS+=("tmux/.tmux.conf")
+    TARGET_PATHS+=("$HOME/.tmux.conf")
+fi
+
+# Add kitty configuration if requested
+if [ "$INSTALL_KITTY" = true ]; then
+    SOURCE_PATHS+=("kitty/kitty.conf")
+    SOURCE_PATHS+=("kitty/current-theme.conf")
+    TARGET_PATHS+=("$HOME/.config/kitty/kitty.conf")
+    TARGET_PATHS+=("$HOME/.config/kitty/current-theme.conf")
+fi
 
 # Function to create backup and link
 link_config() {
@@ -85,7 +149,7 @@ link_config() {
             return
         fi
 
-        # Ask to backup
+        # Handle existing file
         if [ "$YES_MODE" = true ]; then
             # In yes mode, always backup existing files
             backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
@@ -96,30 +160,35 @@ link_config() {
                 return
             fi
         else
-            read -p "  Target '$target' exists. Backup? (y/N): " confirm_backup
-            if [[ "$confirm_backup" =~ ^[Yy]$ ]]; then
-                backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
-                echo "  [INFO] Backing up existing file to $backup_path"
-                mv "$target" "$backup_path"
-                if [ $? -ne 0 ]; then
-                    echo "  [ERROR] Failed to back up $target. Skipping."
-                    return
-                fi
-            else
-                # Ask to remove if not backing up
-                read -p "  Remove existing '$target' without backup? (y/N): " confirm_remove
-                if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
+            echo "  Target '$target' exists. Choose an action:"
+            echo "    1) Replace (remove existing file)"
+            echo "    2) Backup and replace"
+            echo "    3) Skip"
+            read -p "  Enter choice (1-3): " choice
+            
+            case "$choice" in
+                1)
                     echo "  [INFO] Removing existing file $target"
                     rm -rf "$target"
-                     if [ $? -ne 0 ]; then
+                    if [ $? -ne 0 ]; then
                         echo "  [ERROR] Failed to remove $target. Skipping."
                         return
                     fi
-                else
-                    echo "  [SKIP] Did not back up or remove existing file. Skipping link."
+                    ;;
+                2)
+                    backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
+                    echo "  [INFO] Backing up existing file to $backup_path"
+                    mv "$target" "$backup_path"
+                    if [ $? -ne 0 ]; then
+                        echo "  [ERROR] Failed to back up $target. Skipping."
+                        return
+                    fi
+                    ;;
+                3|*)
+                    echo "  [SKIP] Skipping link for $target"
                     return
-                fi
-            fi
+                    ;;
+            esac
         fi
     fi
 
@@ -160,10 +229,14 @@ echo "Done."
 echo ""
 echo "Installing dependencies..."
 
-echo "Running tmux/install_tpm.sh..."
-bash "$SCRIPT_DIR/tmux/install_tpm.sh"
+if [ "$INSTALL_TMUX" = true ]; then
+    echo "Running tmux/install_tpm.sh..."
+    bash "$SCRIPT_DIR/tmux/install_tpm.sh"
+fi
 
-echo "Running lazyvim/install_lazyvim.sh..."
-bash "$SCRIPT_DIR/lazyvim/install_lazyvim.sh"
+if [ "$INSTALL_LAZYVIM" = true ]; then
+    echo "Running lazyvim/install_lazyvim.sh..."
+    bash "$SCRIPT_DIR/lazyvim/install_lazyvim.sh"
+fi
 
 echo "Dependency installation complete."

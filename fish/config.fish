@@ -77,7 +77,7 @@ has devcontainer; and function dcc
     else if test "$argv[1]" = "claude"
         devcontainer exec --workspace-folder . claude --dangerously-skip-permissions $argv[2..]
     else if contains "$argv[1]" $devcontainer_commands
-        devcontainer $argv --workspace-folder .
+        devcontainer $argv[1] --workspace-folder . $argv[2..]
     else
         devcontainer exec --workspace-folder . $argv
     end

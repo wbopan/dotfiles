@@ -195,6 +195,43 @@ done
 echo ""
 echo "Dotfiles uninstall complete."
 
+# Remove devcontainer devcontainer.json if it exists
+DEVCONTAINER_DEFAULT="$HOME/.config/devcontainer/devcontainer.json"
+if [ -f "$DEVCONTAINER_DEFAULT" ]; then
+    echo ""
+    echo "Checking devcontainer default configuration..."
+    echo "  [INFO] Found default devcontainer configuration at $DEVCONTAINER_DEFAULT"
+    
+    if [ "$YES_MODE" = true ]; then
+        echo "  [INFO] Removing default devcontainer configuration..."
+        rm "$DEVCONTAINER_DEFAULT"
+        if [ $? -eq 0 ]; then
+            echo "  [OK] Removed devcontainer default configuration."
+        else
+            echo "  [ERROR] Failed to remove devcontainer default configuration."
+        fi
+    else
+        read -p "  Remove default devcontainer configuration? (y/N): " confirm_remove_devcontainer
+        if [[ "$confirm_remove_devcontainer" =~ ^[Yy]$ ]]; then
+            rm "$DEVCONTAINER_DEFAULT"
+            if [ $? -eq 0 ]; then
+                echo "  [OK] Removed devcontainer default configuration."
+            else
+                echo "  [ERROR] Failed to remove devcontainer default configuration."
+            fi
+        else
+            echo "  [SKIP] Default devcontainer configuration retained."
+        fi
+    fi
+    
+    # Check if devcontainer directory is empty and remove if so
+    DEVCONTAINER_DIR="$HOME/.config/devcontainer"
+    if [ -d "$DEVCONTAINER_DIR" ] && [ -z "$(ls -A "$DEVCONTAINER_DIR")" ]; then
+        rmdir "$DEVCONTAINER_DIR"
+        echo "  [OK] Removed empty devcontainer directory."
+    fi
+fi
+
 # Clean up remaining backup files if requested
 echo ""
 echo "Checking for remaining backup files..."

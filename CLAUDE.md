@@ -43,6 +43,7 @@ bash lazyvim/install_lazyvim.sh # Install LazyVim
 healthcheck  # Check if all required tools are installed
 tx           # Create/attach to tmux session (creates session named after current directory if no args)
 tx <command> # Run command in new tmux session
+dcc          # DevContainer CLI wrapper with podman/docker auto-detection (defined in fish/dcc.fish)
 ```
 
 ## Architecture
@@ -50,6 +51,7 @@ tx <command> # Run command in new tmux session
 The repository uses symbolic links to connect configuration files from this repository to their expected locations in the home directory:
 
 - `fish/config.fish` → `~/.config/fish/config.fish`
+- `fish/dcc.fish` → `~/.config/fish/functions/dcc.fish` (DevContainer CLI wrapper)
 - `lazyvim/lazyvim.json` → `~/.config/nvim/lazyvim.json`
 - `lazyvim/option.lua` → `~/.config/nvim/lua/config/options.lua`
 - `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`

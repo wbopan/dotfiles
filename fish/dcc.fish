@@ -28,7 +28,16 @@ has devcontainer; and function dcc
         end
         devcontainer exec $devcontainer_args claude --dangerously-skip-permissions $argv[2..]
     else if contains "$argv[1]" $devcontainer_commands
-        devcontainer $argv[1] $devcontainer_args $argv[2..]
+        # Add git mount only for 'up' command when in a git worktree
+        set command_args $devcontainer_args
+        if test "$argv[1]" = "up"; and git rev-parse --is-inside-work-tree >/dev/null 2>&1
+            set common_git_dir (git rev-parse --git-common-dir 2>/dev/null)
+            if test -n "$common_git_dir" -a "$common_git_dir" != ".git"
+                # This is a worktree, add mount for the common git directory
+                set command_args $command_args --mount "type=bind,source=$common_git_dir,target=$common_git_dir"
+            end
+        end
+        devcontainer $argv[1] $command_args $argv[2..]
     else
         # For other commands (which use exec), check if devcontainer is running
         if not is_devcontainer_running

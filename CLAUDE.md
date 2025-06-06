@@ -43,7 +43,8 @@ bash lazyvim/install_lazyvim.sh # Install LazyVim
 healthcheck  # Check if all required tools are installed
 tx           # Create/attach to tmux session (creates session named after current directory if no args)
 tx <command> # Run command in new tmux session
-dcc          # DevContainer CLI wrapper with podman/docker auto-detection (defined in fish/dcc.fish)
+dcc          # DevContainer CLI wrapper with enhanced features (defined in fish/dcc.fish)
+dcc --dryrun # Preview commands without executing them
 ```
 
 ## Architecture
@@ -94,3 +95,11 @@ The feature automatically:
 - Clones your dotfiles repository
 - Runs the installer in non-interactive mode
 - Sets fish as the default shell
+
+## Recent Updates
+
+### DevContainer CLI (dcc) Enhancements
+- **--dryrun flag**: Preview commands without executing them
+- **Container runtime auto-detection**: Automatically detects and uses podman or docker
+- **Git worktree support**: Automatically mounts git common directory when working in git worktrees
+- **Auto-start containers**: Automatically starts devcontainer before executing commands when needed

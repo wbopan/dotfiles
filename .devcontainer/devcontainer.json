@@ -1,0 +1,96 @@
+{
+    "name": "Claude Code Sandbox",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+    "features": {
+        // 核心功能
+        "ghcr.io/devcontainers/features/python:1": {},
+        "ghcr.io/va-h/devcontainers-features/uv:1": {},
+        "ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {},
+        "ghcr.io/devcontainers/features/node:1": {},
+        "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "username": "vscode",
+            "userUid": "automatic",
+            "userGid": "automatic"
+        }
+    },
+    "mounts": [
+        // UV cache with consistency mode for better performance
+        "source=${localEnv:HOME}/.cache/uv,target=/home/vscode/.cache/uv,type=bind,consistency=cached",
+        "source=claude-code-config,target=/home/vscode/.claude,type=volume",
+        // Fish history
+        "source=claude-code-fishhistory,target=/home/vscode/.local/share/fish,type=volume",
+        // Git config with fallback handling
+        "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly,consistency=cached",
+        "source=${localEnv:HOME}/.config/git,target=/home/vscode/.config/git,type=bind,readonly,consistency=cached",
+        // SSH keys for git operations
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,consistency=cached"
+    ],
+    "runArgs": [
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW"
+    ],
+    "remoteUser": "vscode",
+    "containerEnv": {
+        "DEVCONTAINER": "true",
+        "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+        "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+        "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+        "NO_PROXY": "${localEnv:NO_PROXY}",
+        "UV_LINK_MODE": "copy",
+        // Python optimizations
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        // UV optimizations
+        "UV_SYSTEM_PYTHON": "true",
+        "UV_COMPILE_BYTECODE": "1",
+    },
+    // 综合初始化命令
+    "postCreateCommand": "sudo mkdir -p /home/vscode/.claude && sudo chown -R vscode:vscode /home/vscode/.claude",
+    // "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "fish",
+                "terminal.integrated.profiles.linux": {
+                    "fish": {
+                        "path": "fish",
+                        "icon": "terminal"
+                    },
+                    "bash": {
+                        "path": "bash",
+                        "icon": "terminal-bash"
+                    }
+                },
+                // Python settings for better development experience
+                "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+                "python.terminal.activateEnvironment": true,
+                "python.linting.enabled": true,
+                // Performance settings
+                "files.watcherExclude": {
+                    "**/.git/objects/**": true,
+                    "**/.git/subtree-cache/**": true,
+                    "**/node_modules/**": true,
+                    "**/.venv/**": true,
+                    "**/__pycache__/**": true,
+                    "**/.pytest_cache/**": true,
+                    "**/.mypy_cache/**": true,
+                    "**/.ruff_cache/**": true,
+                    "**/uv.lock": true
+                },
+                "search.exclude": {
+                    "**/node_modules": true,
+                    "**/.venv": true,
+                    "**/__pycache__": true,
+                    "**/uv.lock": true
+                }
+            },
+            "extensions": [
+                // "eamodio.gitlens",
+                // "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+    // Lifecycle hooks for debugging
+    "initializeCommand": "echo 'Initializing devcontainer at $(date)'"
+}

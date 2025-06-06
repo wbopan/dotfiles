@@ -134,10 +134,10 @@ has devcontainer; and function dcc
     end
 end
 
-# worktree-cd function
-function worktree-cd
+# worktree-add function
+function wtadd
     if test (count $argv) -eq 0
-        echo "Usage: worktree-cd <name>"
+        echo "Usage: wtadd <name>"
         return 1
     end
     
@@ -147,17 +147,6 @@ function worktree-cd
     git worktree add $worktree_path -b $name && cd $worktree_path
 end
 
-# worktree-rm function
-function worktree-rm
-    if test (count $argv) -eq 0
-        echo "Usage: worktree-rm <name>"
-        return 1
-    end
-    
-    set name $argv[1]
-    set worktree_path "$PWD-$name"
-    git worktree remove $worktree_path
-end
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
-source ~/.orbstack/shell/init2.fish 2>/dev/null || :
+alias wtrm "git worktree remove"
+alias wtls "git worktree list"
+

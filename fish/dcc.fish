@@ -1,4 +1,16 @@
 has devcontainer; and function dcc
+    # Check for --dryrun flag
+    set dryrun false
+    set filtered_argv
+    for arg in $argv
+        if test "$arg" = "--dryrun"
+            set dryrun true
+        else
+            set filtered_argv $filtered_argv $arg
+        end
+    end
+    set argv $filtered_argv
+    
     # Detect container runtime (prefer podman over docker)
     set docker_path ""
     if type -q podman
@@ -21,20 +33,38 @@ has devcontainer; and function dcc
         set devcontainer_args --workspace-folder .
     end
     
+    # Helper function to execute or print commands based on dryrun flag
+    function run_or_print
+        if test "$dryrun" = "true"
+            echo "[DRYRUN] $argv"
+        else
+            eval $argv
+        end
+    end
+    
     # Check if devcontainer is running (for exec commands and non-management commands)
     function is_devcontainer_running
-        devcontainer exec $docker_path $devcontainer_args echo "checking" >/dev/null 2>&1
+        if test "$dryrun" = "true"
+            echo "[DRYRUN] devcontainer exec $docker_path $devcontainer_args echo \"checking\" >/dev/null 2>&1"
+            return 1  # Assume not running in dryrun mode
+        else
+            devcontainer exec $docker_path $devcontainer_args echo "checking" >/dev/null 2>&1
+        end
     end
     
     if test (count $argv) -eq 0
-        devcontainer $docker_path $devcontainer_args
+        run_or_print devcontainer $docker_path $devcontainer_args
     else if test "$argv[1]" = "claude"
         # Check if devcontainer is running before executing claude
         if not is_devcontainer_running
-            echo "Devcontainer not running. Starting it first..."
-            devcontainer up $docker_path $devcontainer_args
+            if test "$dryrun" = "true"
+                echo "[DRYRUN] Devcontainer not running. Starting it first..."
+            else
+                echo "Devcontainer not running. Starting it first..."
+            end
+            run_or_print devcontainer up $docker_path $devcontainer_args
         end
-        devcontainer exec $docker_path $devcontainer_args claude --dangerously-skip-permissions $argv[2..]
+        run_or_print devcontainer exec $docker_path $devcontainer_args claude --dangerously-skip-permissions $argv[2..]
     else if contains "$argv[1]" $devcontainer_commands
         # Add git mount only for 'up' command when in a git worktree
         set command_args $devcontainer_args
@@ -45,13 +75,17 @@ has devcontainer; and function dcc
                 set command_args $command_args --mount "type=bind,source=$common_git_dir,target=$common_git_dir"
             end
         end
-        devcontainer $argv[1] $docker_path $command_args $argv[2..]
+        run_or_print devcontainer $argv[1] $docker_path $command_args $argv[2..]
     else
         # For other commands (which use exec), check if devcontainer is running
         if not is_devcontainer_running
-            echo "Devcontainer not running. Starting it first..."
-            devcontainer up $docker_path $devcontainer_args
+            if test "$dryrun" = "true"
+                echo "[DRYRUN] Devcontainer not running. Starting it first..."
+            else
+                echo "Devcontainer not running. Starting it first..."
+            end
+            run_or_print devcontainer up $docker_path $devcontainer_args
         end
-        devcontainer exec $docker_path $devcontainer_args $argv
+        run_or_print devcontainer exec $docker_path $devcontainer_args $argv
     end
 end

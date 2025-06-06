@@ -72,14 +72,25 @@ has devcontainer; and function dcc
     # List of devcontainer subcommands
     set devcontainer_commands up set-up build run-user-commands read-configuration outdated upgrade features templates exec
     
-    if test (count $argv) -eq 0
-        devcontainer --workspace-folder .
-    else if test "$argv[1]" = "claude"
-        devcontainer exec --workspace-folder . claude --dangerously-skip-permissions $argv[2..]
-    else if contains "$argv[1]" $devcontainer_commands
-        devcontainer $argv[1] --workspace-folder . $argv[2..]
+    # Check if .devcontainer/devcontainer.json exists in current directory
+    # If not, use default config from ~/.config/devcontainer/default.json
+    set devcontainer_args
+    if test -f .devcontainer/devcontainer.json
+        set devcontainer_args --workspace-folder .
+    else if test -f $HOME/.config/devcontainer/default.json
+        set devcontainer_args --workspace-folder . --config $HOME/.config/devcontainer/default.json
     else
-        devcontainer exec --workspace-folder . $argv
+        set devcontainer_args --workspace-folder .
+    end
+    
+    if test (count $argv) -eq 0
+        devcontainer $devcontainer_args
+    else if test "$argv[1]" = "claude"
+        devcontainer exec $devcontainer_args claude --dangerously-skip-permissions $argv[2..]
+    else if contains "$argv[1]" $devcontainer_commands
+        devcontainer $argv[1] $devcontainer_args $argv[2..]
+    else
+        devcontainer exec $devcontainer_args $argv
     end
 end
 

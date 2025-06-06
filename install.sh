@@ -80,7 +80,9 @@ TARGET_PATHS=()
 # Add fish configuration if requested
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
+    SOURCE_PATHS+=("fish/dcc.fish")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/functions/dcc.fish")
 fi
 
 # Add LazyVim configuration if requested

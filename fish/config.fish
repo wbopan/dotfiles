@@ -38,6 +38,7 @@ alias ssj 'sudo journalctl -xeu'
 alias ssp 'sudo systemctl stop'
 has code; and alias c "code"
 has cursor; and alias c "cursor"
+has open; and alias o "open"
 has nvim; and alias vim "nvim"
 has docker-compose; and alias dc "docker-compose"
 

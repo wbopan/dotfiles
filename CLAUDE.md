@@ -103,3 +103,6 @@ The feature automatically:
 - **Container runtime auto-detection**: Automatically detects and uses podman or docker
 - **Git worktree support**: Automatically mounts git common directory when working in git worktrees
 - **Auto-start containers**: Automatically starts devcontainer before executing commands when needed
+
+### Installation and Uninstallation Scripts
+- Update @install.sh and @uninstall.sh after add new scripts

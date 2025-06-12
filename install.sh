@@ -81,8 +81,10 @@ TARGET_PATHS=()
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
     SOURCE_PATHS+=("fish/dcc.fish")
+    SOURCE_PATHS+=("fish/sshtmux.fish")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
     TARGET_PATHS+=("$HOME/.config/fish/functions/dcc.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/functions/sshtmux.fish")
 fi
 
 # Add LazyVim configuration if requested

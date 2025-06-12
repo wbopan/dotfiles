@@ -31,6 +31,7 @@ done
 SOURCE_PATHS=(
     "fish/config.fish"
     "fish/dcc.fish"
+    "fish/sshtmux.fish"
     "lazyvim/lazyvim.json"
     "lazyvim/option.lua"
     "lazyvim/plugins.lua"
@@ -43,6 +44,7 @@ SOURCE_PATHS=(
 TARGET_PATHS=(
     "$HOME/.config/fish/config.fish"
     "$HOME/.config/fish/functions/dcc.fish"
+    "$HOME/.config/fish/functions/sshtmux.fish"
     "$HOME/.config/nvim/lazyvim.json"
     "$HOME/.config/nvim/lua/config/options.lua"
     "$HOME/.config/nvim/lua/plugins/plugins.lua"

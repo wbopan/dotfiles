@@ -181,6 +181,10 @@ if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
     
+    # Link .env file for 1Password integration
+    SOURCE_PATHS+=(".env")
+    TARGET_PATHS+=("$HOME/.config/fish/.env")
+    
     # Auto-discover and add all .fish files in conf.d directory
     for conf_file in "$SCRIPT_DIR"/fish/conf.d/*.fish; do
         if [ -f "$conf_file" ]; then
@@ -349,6 +353,7 @@ else
     print_header "Dependencies:"
     print_info "After fish configuration is active, run ${CYAN}fish_deps health${NC} to check all dependencies"
     print_info "Use ${CYAN}fish_deps install <package>${NC} to install missing packages"
+    print_info "Use ${CYAN}op-sync${NC} to sync 1Password secrets to .profile file"
 fi
 
 echo ""

@@ -3,12 +3,83 @@
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+# Color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Color functions
+print_success() { echo -e "  ${GREEN}[OK]${NC} $1"; }
+print_info() { echo -e "  ${BLUE}[INFO]${NC} $1"; }
+print_skip() { echo -e "  ${YELLOW}[SKIP]${NC} $1"; }
+print_sync() { echo -e "  ${YELLOW}[SYNC]${NC} $1"; }
+print_error() { echo -e "  ${RED}[ERROR]${NC} $1"; }
+print_command() { echo -e "    ${CYAN}$1${NC}"; }
+print_header() { echo -e "${BOLD}$1${NC}"; }
+
+# Function to install fish if not present
+install_fish_if_needed() {
+    if ! command -v fish &> /dev/null; then
+        print_info "Fish shell not found. Installing fish..."
+        
+        # Detect OS and install fish
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            if command -v brew &> /dev/null; then
+                brew install fish
+            else
+                print_error "Homebrew not found. Please install fish manually: https://fishshell.com/"
+                return 1
+            fi
+        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            # Linux
+            if command -v apt-get &> /dev/null; then
+                # Use official Fish PPA for newest version on Ubuntu/Debian
+                print_info "Adding Fish PPA for newest version..."
+                sudo apt-get update
+                sudo apt-get install -y software-properties-common
+                sudo add-apt-repository -y ppa:fish-shell/release-4
+                sudo apt-get update
+                sudo apt-get install -y fish
+            elif command -v yum &> /dev/null; then
+                sudo yum install -y fish
+            elif command -v dnf &> /dev/null; then
+                sudo dnf install -y fish
+            elif command -v pacman &> /dev/null; then
+                sudo pacman -S fish
+            else
+                print_error "Package manager not found. Please install fish manually: https://fishshell.com/"
+                return 1
+            fi
+        else
+            print_error "Unsupported OS. Please install fish manually: https://fishshell.com/"
+            return 1
+        fi
+        
+        if command -v fish &> /dev/null; then
+            print_success "Fish shell installed successfully"
+        else
+            print_error "Failed to install fish shell"
+            return 1
+        fi
+    else
+        print_skip "Fish shell already installed"
+    fi
+    return 0
+}
+
 # Parse command-line arguments
 YES_MODE=false
-INSTALL_FISH=false
-INSTALL_TMUX=false
-INSTALL_LAZYVIM=false
-INSTALL_ALL=false
+# Default to install all components
+INSTALL_FISH=true
+INSTALL_TMUX=true
+INSTALL_LAZYVIM=true
+SELECTIVE_MODE=false
+FISH_CONFIGURED=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -17,30 +88,79 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --fish)
+            if [ "$SELECTIVE_MODE" = false ]; then
+                # First selective flag - disable all, then enable this one
+                INSTALL_FISH=false
+                INSTALL_TMUX=false
+                INSTALL_LAZYVIM=false
+                SELECTIVE_MODE=true
+            fi
             INSTALL_FISH=true
             shift
             ;;
         --tmux)
+            if [ "$SELECTIVE_MODE" = false ]; then
+                # First selective flag - disable all, then enable this one
+                INSTALL_FISH=false
+                INSTALL_TMUX=false
+                INSTALL_LAZYVIM=false
+                SELECTIVE_MODE=true
+            fi
             INSTALL_TMUX=true
             shift
             ;;
         --lazyvim)
+            if [ "$SELECTIVE_MODE" = false ]; then
+                # First selective flag - disable all, then enable this one
+                INSTALL_FISH=false
+                INSTALL_TMUX=false
+                INSTALL_LAZYVIM=false
+                SELECTIVE_MODE=true
+            fi
             INSTALL_LAZYVIM=true
             shift
             ;;
+        --no-fish)
+            INSTALL_FISH=false
+            shift
+            ;;
+        --no-tmux)
+            INSTALL_TMUX=false
+            shift
+            ;;
+        --no-lazyvim)
+            INSTALL_LAZYVIM=false
+            shift
+            ;;
         --all|-a)
-            INSTALL_ALL=true
+            INSTALL_FISH=true
+            INSTALL_TMUX=true
+            INSTALL_LAZYVIM=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "By default, installs all configurations (fish, tmux, lazyvim)."
+            echo ""
             echo "Options:"
-            echo "  --fish      Install fish shell configuration"
-            echo "  --tmux      Install tmux configuration"
-            echo "  --lazyvim   Install LazyVim configuration"
-            echo "  --all, -a   Install all configurations"
-            echo "  --yes, -y   Non-interactive mode (auto-backup existing files)"
-            echo "  --help, -h  Show this help message"
+            echo "  --fish         Install only fish shell configuration"
+            echo "  --tmux         Install only tmux configuration" 
+            echo "  --lazyvim      Install only LazyVim configuration"
+            echo "  --all, -a      Install all configurations (default)"
+            echo ""
+            echo "  --no-fish      Skip fish shell configuration"
+            echo "  --no-tmux      Skip tmux configuration"
+            echo "  --no-lazyvim   Skip LazyVim configuration"
+            echo ""
+            echo "  --yes, -y      Non-interactive mode (auto-backup existing files)"
+            echo "  --help, -h     Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                    # Install everything"
+            echo "  $0 --no-lazyvim       # Install fish + tmux only"
+            echo "  $0 --fish --tmux      # Install fish + tmux only"
+            echo "  $0 --yes              # Install everything non-interactively"
             exit 0
             ;;
         *)
@@ -51,20 +171,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# If --all is specified, enable all components
-if [ "$INSTALL_ALL" = true ]; then
-    INSTALL_FISH=true
-    INSTALL_TMUX=true
-    INSTALL_LAZYVIM=true
-fi
-
-# If no specific flags are provided, show help and exit
-if [ "$INSTALL_FISH" = false ] && [ "$INSTALL_TMUX" = false ] && [ "$INSTALL_LAZYVIM" = false ]; then
-    echo "No installation targets specified."
-    echo "Use --help for usage information or --all to install everything."
-    exit 0
-fi
-
 # Define source (in dotfiles repo) and target (in home dir) paths
 # Using indexed arrays for better compatibility with older bash versions
 SOURCE_PATHS=()
@@ -73,9 +179,17 @@ TARGET_PATHS=()
 # Add fish configuration if requested
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
-    SOURCE_PATHS+=("fish/conf.d")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d")
+    
+    # Auto-discover and add all .fish files in conf.d directory
+    for conf_file in "$SCRIPT_DIR"/fish/conf.d/*.fish; do
+        if [ -f "$conf_file" ]; then
+            # Extract just the filename from the full path
+            conf_filename=$(basename "$conf_file")
+            SOURCE_PATHS+=("fish/conf.d/$conf_filename")
+            TARGET_PATHS+=("$HOME/.config/fish/conf.d/$conf_filename")
+        fi
+    done
 fi
 
 # Add LazyVim configuration if requested
@@ -96,39 +210,40 @@ link_config() {
     local target=$2
     local source_abs="$SCRIPT_DIR/$source_rel"
     local target_dir=$(dirname "$target")
+    local target_short="${target/#$HOME/~}"  # Replace home directory with ~
 
-    echo "Processing $source_rel -> $target"
+    # Track if we're configuring fish
+    if [[ "$source_rel" == fish/* ]]; then
+        FISH_CONFIGURED=true
+    fi
 
     # Ensure source exists (file or directory)
     if [ ! -e "$source_abs" ]; then
-        echo "  [SKIP] Source not found: $source_abs"
+        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(source not found)${NC}"
         return
     fi
 
     # Ensure target directory exists
     if [ ! -d "$target_dir" ]; then
-        echo "  [INFO] Target directory does not exist: $target_dir"
         if [ "$YES_MODE" = true ]; then
             mkdir -p "$target_dir"
-            echo "  [OK] Created directory: $target_dir"
         else
-            read -p "  Create directory? (y/N): " confirm_create_dir
+            echo -e "  ${YELLOW}❓${NC} ${source_rel} -> ${target_short}"
+            read -p "    Create directory $(dirname "$target_short")? (y/N): " confirm_create_dir
             if [[ "$confirm_create_dir" =~ ^[Yy]$ ]]; then
                 mkdir -p "$target_dir"
-                echo "  [OK] Created directory: $target_dir"
             else
-                echo "  [SKIP] Skipping linking for $target as directory was not created."
+                echo -e "  ${YELLOW}⏭️${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
                 return
             fi
         fi
     fi
 
-
     # Check if target exists
     if [ -e "$target" ] || [ -L "$target" ]; then
         # Check if it's already linked correctly
         if [ -L "$target" ] && [ "$(readlink "$target")" == "$source_abs" ]; then
-            echo "  [SKIP] Already linked correctly."
+            echo -e "  ${YELLOW}✅${NC} ${source_rel} -> ${target_short} ${YELLOW}(synced)${NC}"
             return
         fi
 
@@ -136,39 +251,34 @@ link_config() {
         if [ "$YES_MODE" = true ]; then
             # In yes mode, always backup existing files
             backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
-            echo "  [INFO] Backing up existing file to $backup_path"
             mv "$target" "$backup_path"
             if [ $? -ne 0 ]; then
-                echo "  [ERROR] Failed to back up $target. Skipping."
+                echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(backup failed)${NC}"
                 return
             fi
         else
-            echo "  Target '$target' exists. Choose an action:"
-            echo "    1) Replace (remove existing file)"
-            echo "    2) Backup and replace"
-            echo "    3) Skip"
-            read -p "  Enter choice (1-3): " choice
+            echo -e "  ${YELLOW}❓${NC} ${source_rel} -> ${target_short} ${YELLOW}(exists)${NC}"
+            echo -e "    ${CYAN}1)${NC} Replace  ${CYAN}2)${NC} Backup  ${CYAN}3)${NC} Skip"
+            read -p "    Choice (1-3): " choice
             
             case "$choice" in
                 1)
-                    echo "  [INFO] Removing existing file $target"
                     rm -rf "$target"
                     if [ $? -ne 0 ]; then
-                        echo "  [ERROR] Failed to remove $target. Skipping."
+                        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(failed to remove)${NC}"
                         return
                     fi
                     ;;
                 2)
                     backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
-                    echo "  [INFO] Backing up existing file to $backup_path"
                     mv "$target" "$backup_path"
                     if [ $? -ne 0 ]; then
-                        echo "  [ERROR] Failed to back up $target. Skipping."
+                        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(backup failed)${NC}"
                         return
                     fi
                     ;;
                 3|*)
-                    echo "  [SKIP] Skipping link for $target"
+                    echo -e "  ${YELLOW}⏭️${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
                     return
                     ;;
             esac
@@ -176,21 +286,29 @@ link_config() {
     fi
 
     # Create symbolic link
-    echo "  [INFO] Creating symbolic link: $target -> $source_abs"
     ln -s "$source_abs" "$target"
     if [ $? -eq 0 ]; then
-        echo "  [OK] Link created successfully."
+        echo -e "  ${GREEN}✅${NC} ${source_rel} -> ${target_short}"
     else
-        echo "  [ERROR] Failed to create link for $target."
+        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(link failed)${NC}"
     fi
-    echo "" # Newline for readability
 }
 
 # --- Main Script ---
-echo "Starting dotfiles setup..."
-echo "Script directory: $SCRIPT_DIR"
-echo "Home directory: $HOME"
+print_header "Starting dotfiles sync..."
+echo -e "Script directory: ${CYAN}$SCRIPT_DIR${NC}"
+echo -e "Home directory: ${CYAN}$HOME${NC}"
 echo ""
+
+# Install fish first if needed and configuring fish
+if [ "$INSTALL_FISH" = true ]; then
+    print_header "Checking Fish Shell..."
+    if ! install_fish_if_needed; then
+        print_error "Failed to install fish shell. Skipping fish configuration."
+        INSTALL_FISH=false
+    fi
+    echo ""
+fi
 
 # Iterate over the arrays and link files
 num_configs=${#SOURCE_PATHS[@]}
@@ -200,28 +318,38 @@ for (( i=0; i<${num_configs}; i++ )); do
     if [ -n "$src_rel" ] && [ -n "$tgt_path" ]; then # Basic check to ensure pairs exist
         link_config "$src_rel" "$tgt_path"
     else
-        echo "[WARN] Skipping configuration index $i due to missing source or target path."
+        echo -e "${YELLOW}[WARN]${NC} Skipping configuration index $i due to missing source or target path."
     fi
 done
 
-echo "Dotfiles setup complete."
-
-echo "Done."
-
-# --- Install Dependencies ---
+print_header "Dotfiles sync complete!"
 echo ""
-echo "Installing dependencies..."
 
-if [ "$INSTALL_TMUX" = true ]; then
-    echo "Running tmux/install_tpm.sh..."
-    bash "$SCRIPT_DIR/tmux/install_tpm.sh"
+# Source fish configuration if it was configured
+if [ "$FISH_CONFIGURED" = true ] && command -v fish &> /dev/null; then
+    print_header "Sourcing Fish Configuration..."
+    if fish -c "source ~/.config/fish/config.fish" 2>/dev/null; then
+        print_success "Fish configuration sourced successfully"
+    else
+        print_info "Fish configuration will be loaded on next fish session"
+    fi
+    echo ""
 fi
 
-if [ "$INSTALL_LAZYVIM" = true ]; then
-    echo "Running lazyvim/install_lazyvim.sh..."
-    bash "$SCRIPT_DIR/lazyvim/install_lazyvim.sh"
+# Run fish_deps health check if fish is configured
+if [ "$FISH_CONFIGURED" = true ] && command -v fish &> /dev/null; then
+    print_header "Dependency Health Check:"
+    if fish -c "fish_deps health" 2>/dev/null; then
+        echo ""
+        print_info "Use ${CYAN}fish_deps install <package>${NC} to install missing dependencies"
+    else
+        print_info "Fish configuration not fully loaded. Run ${CYAN}fish_deps health${NC} manually to check dependencies"
+    fi
+else
+    print_header "Dependencies:"
+    print_info "After fish configuration is active, run ${CYAN}fish_deps health${NC} to check all dependencies"
+    print_info "Use ${CYAN}fish_deps install <package>${NC} to install missing packages"
 fi
 
-echo "Dependency installation complete."
-
-echo "All done!"
+echo ""
+print_header "All done! 🎉"

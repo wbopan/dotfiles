@@ -30,7 +30,6 @@ done
 # Using indexed arrays for better compatibility with older bash versions
 SOURCE_PATHS=(
     "fish/config.fish"
-    "fish/conf.d"
     # Legacy function files (for backward compatibility)
     "fish/dcc.fish"
     "fish/sshtmux.fish"
@@ -45,7 +44,6 @@ SOURCE_PATHS=(
 
 TARGET_PATHS=(
     "$HOME/.config/fish/config.fish"
-    "$HOME/.config/fish/conf.d"
     # Legacy function files (for backward compatibility)
     "$HOME/.config/fish/functions/dcc.fish"
     "$HOME/.config/fish/functions/sshtmux.fish"
@@ -57,6 +55,22 @@ TARGET_PATHS=(
     "$HOME/.config/kitty/current-theme.conf"
     # Add corresponding target paths here, ensure order matches SOURCE_PATHS
 )
+
+# Auto-discover and add all .fish files in conf.d directory for unlinking
+for conf_file in "$SCRIPT_DIR"/fish/conf.d/*.fish; do
+    if [ -f "$conf_file" ]; then
+        # Extract just the filename from the full path
+        conf_filename=$(basename "$conf_file")
+        SOURCE_PATHS+=("fish/conf.d/$conf_filename")
+        TARGET_PATHS+=("$HOME/.config/fish/conf.d/$conf_filename")
+    fi
+done
+
+# Add backward compatibility for directory-based conf.d linking (if it exists)
+if [ -L "$HOME/.config/fish/conf.d" ]; then
+    SOURCE_PATHS+=("fish/conf.d")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d")
+fi
 
 # Function to find the most recent backup file
 find_latest_backup() {

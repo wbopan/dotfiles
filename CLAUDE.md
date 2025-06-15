@@ -63,7 +63,6 @@ The repository uses symbolic links to connect configuration files from this repo
 - `fish/conf.d/05-functions.fish` → `~/.config/fish/conf.d/05-functions.fish` (Custom functions)
 
 ### Other Configurations
-- `lazyvim/lazyvim.json` → `~/.config/nvim/lazyvim.json`
 - `lazyvim/option.lua` → `~/.config/nvim/lua/config/options.lua`
 - `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`
 - `tmux/.tmux.conf` → `~/.tmux.conf`

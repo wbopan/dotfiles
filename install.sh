@@ -90,10 +90,8 @@ fi
 
 # Add LazyVim configuration if requested
 if [ "$INSTALL_LAZYVIM" = true ]; then
-    SOURCE_PATHS+=("lazyvim/lazyvim.json")
     SOURCE_PATHS+=("lazyvim/option.lua")
     SOURCE_PATHS+=("lazyvim/plugins.lua")
-    TARGET_PATHS+=("$HOME/.config/nvim/lazyvim.json")
     TARGET_PATHS+=("$HOME/.config/nvim/lua/config/options.lua")
     TARGET_PATHS+=("$HOME/.config/nvim/lua/plugins/plugins.lua")
 fi

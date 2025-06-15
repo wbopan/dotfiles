@@ -65,6 +65,7 @@ alias grs 'git restore'
 alias gst 'git stash'
 alias gstp 'git stash pop'
 alias gstl 'git stash list'
+alias gwt 'git worktree'
 
 # Initialize plugins
 has zoxide; and zoxide init fish --cmd cd | source
@@ -92,21 +93,3 @@ function tx
         tmux new-session -s $window_name "$argv; $SHELL"
     end
 end
-
-
-# worktree-add function
-function wtadd
-    if test (count $argv) -eq 0
-        echo "Usage: wtadd <name>"
-        return 1
-    end
-    
-    set name $argv[1]
-    set current_dir (basename $PWD)
-    set worktree_path "$PWD-$name"
-    git worktree add $worktree_path -b $name && cd $worktree_path
-end
-
-alias wtrm "git worktree remove"
-alias wtls "git worktree list"
-

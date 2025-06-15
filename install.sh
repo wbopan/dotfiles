@@ -73,26 +73,14 @@ TARGET_PATHS=()
 # Add fish configuration if requested
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
-    SOURCE_PATHS+=("fish/conf.d/00-utilities.fish")
-    SOURCE_PATHS+=("fish/conf.d/01-healthcheck.fish")
-    SOURCE_PATHS+=("fish/conf.d/02-aliases.fish")
-    SOURCE_PATHS+=("fish/conf.d/03-git.fish")
-    SOURCE_PATHS+=("fish/conf.d/04-plugins.fish")
-    SOURCE_PATHS+=("fish/conf.d/05-functions.fish")
+    SOURCE_PATHS+=("fish/conf.d")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/00-utilities.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/01-healthcheck.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/02-aliases.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/03-git.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/04-plugins.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/conf.d/05-functions.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d")
 fi
 
 # Add LazyVim configuration if requested
 if [ "$INSTALL_LAZYVIM" = true ]; then
-    SOURCE_PATHS+=("lazyvim/option.lua")
     SOURCE_PATHS+=("lazyvim/plugins.lua")
-    TARGET_PATHS+=("$HOME/.config/nvim/lua/config/options.lua")
     TARGET_PATHS+=("$HOME/.config/nvim/lua/plugins/plugins.lua")
 fi
 
@@ -111,9 +99,9 @@ link_config() {
 
     echo "Processing $source_rel -> $target"
 
-    # Ensure source file exists
-    if [ ! -f "$source_abs" ]; then
-        echo "  [SKIP] Source file not found: $source_abs"
+    # Ensure source exists (file or directory)
+    if [ ! -e "$source_abs" ]; then
+        echo "  [SKIP] Source not found: $source_abs"
         return
     fi
 

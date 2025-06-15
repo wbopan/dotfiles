@@ -53,14 +53,9 @@ The repository uses symbolic links to connect configuration files from this repo
 
 ### Fish Shell Configuration
 - `fish/config.fish` → `~/.config/fish/config.fish` (Main configuration file)
-- `fish/dcc.fish` → `~/.config/fish/functions/dcc.fish` (DevContainer CLI wrapper)
-- `fish/sshtmux.fish` → `~/.config/fish/functions/sshtmux.fish` (SSH tmux wrapper)
-- `fish/conf.d/00-utilities.fish` → `~/.config/fish/conf.d/00-utilities.fish` (Core utilities)
-- `fish/conf.d/01-healthcheck.fish` → `~/.config/fish/conf.d/01-healthcheck.fish` (Healthcheck function)
-- `fish/conf.d/02-aliases.fish` → `~/.config/fish/conf.d/02-aliases.fish` (Common aliases)
-- `fish/conf.d/03-git.fish` → `~/.config/fish/conf.d/03-git.fish` (Git aliases)
-- `fish/conf.d/04-plugins.fish` → `~/.config/fish/conf.d/04-plugins.fish` (Plugin initialization)
-- `fish/conf.d/05-functions.fish` → `~/.config/fish/conf.d/05-functions.fish` (Custom functions)
+- `fish/conf.d/` → `~/.config/fish/conf.d/` (Modular configuration directory with utilities, healthcheck, aliases, git, plugins, and functions)
+- `fish/dcc.fish` → `~/.config/fish/functions/dcc.fish` (DevContainer CLI wrapper - legacy)
+- `fish/sshtmux.fish` → `~/.config/fish/functions/sshtmux.fish` (SSH tmux wrapper - legacy)
 
 ### Other Configurations
 - `lazyvim/option.lua` → `~/.config/nvim/lua/config/options.lua`

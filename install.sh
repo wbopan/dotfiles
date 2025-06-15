@@ -7,7 +7,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 YES_MODE=false
 INSTALL_FISH=false
 INSTALL_TMUX=false
-INSTALL_KITTY=false
 INSTALL_LAZYVIM=false
 INSTALL_ALL=false
 
@@ -25,10 +24,6 @@ while [[ $# -gt 0 ]]; do
             INSTALL_TMUX=true
             shift
             ;;
-        --kitty)
-            INSTALL_KITTY=true
-            shift
-            ;;
         --lazyvim)
             INSTALL_LAZYVIM=true
             shift
@@ -42,7 +37,6 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --fish      Install fish shell configuration"
             echo "  --tmux      Install tmux configuration"
-            echo "  --kitty     Install kitty terminal configuration"
             echo "  --lazyvim   Install LazyVim configuration"
             echo "  --all, -a   Install all configurations"
             echo "  --yes, -y   Non-interactive mode (auto-backup existing files)"
@@ -61,12 +55,11 @@ done
 if [ "$INSTALL_ALL" = true ]; then
     INSTALL_FISH=true
     INSTALL_TMUX=true
-    INSTALL_KITTY=true
     INSTALL_LAZYVIM=true
 fi
 
 # If no specific flags are provided, show help and exit
-if [ "$INSTALL_FISH" = false ] && [ "$INSTALL_TMUX" = false ] && [ "$INSTALL_KITTY" = false ] && [ "$INSTALL_LAZYVIM" = false ]; then
+if [ "$INSTALL_FISH" = false ] && [ "$INSTALL_TMUX" = false ] && [ "$INSTALL_LAZYVIM" = false ]; then
     echo "No installation targets specified."
     echo "Use --help for usage information or --all to install everything."
     exit 0
@@ -101,14 +94,6 @@ fi
 if [ "$INSTALL_TMUX" = true ]; then
     SOURCE_PATHS+=("tmux/.tmux.conf")
     TARGET_PATHS+=("$HOME/.tmux.conf")
-fi
-
-# Add kitty configuration if requested
-if [ "$INSTALL_KITTY" = true ]; then
-    SOURCE_PATHS+=("kitty/kitty.conf")
-    SOURCE_PATHS+=("kitty/current-theme.conf")
-    TARGET_PATHS+=("$HOME/.config/kitty/kitty.conf")
-    TARGET_PATHS+=("$HOME/.config/kitty/current-theme.conf")
 fi
 
 # Function to create backup and link

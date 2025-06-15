@@ -77,10 +77,9 @@ has uvx; and uvx --generate-shell-completion fish | source
 has vim; and set -x EDITOR "vim"
 has nvim; and set -x EDITOR "nvim"
 has batcat; and alias bat "batcat"
-has starship; and starship init fish | source
+# has starship; and starship init fish | source
 
 # tx function
-
 function tx
     if test -n "$TMUX"
         return 0

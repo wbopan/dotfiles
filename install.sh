@@ -73,11 +73,19 @@ TARGET_PATHS=()
 # Add fish configuration if requested
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
-    SOURCE_PATHS+=("fish/dcc.fish")
-    SOURCE_PATHS+=("fish/sshtmux.fish")
+    SOURCE_PATHS+=("fish/conf.d/00-utilities.fish")
+    SOURCE_PATHS+=("fish/conf.d/01-healthcheck.fish")
+    SOURCE_PATHS+=("fish/conf.d/02-aliases.fish")
+    SOURCE_PATHS+=("fish/conf.d/03-git.fish")
+    SOURCE_PATHS+=("fish/conf.d/04-plugins.fish")
+    SOURCE_PATHS+=("fish/conf.d/05-functions.fish")
     TARGET_PATHS+=("$HOME/.config/fish/config.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/functions/dcc.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/functions/sshtmux.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/00-utilities.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/01-healthcheck.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/02-aliases.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/03-git.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/04-plugins.fish")
+    TARGET_PATHS+=("$HOME/.config/fish/conf.d/05-functions.fish")
 fi
 
 # Add LazyVim configuration if requested

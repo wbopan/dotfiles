@@ -30,8 +30,15 @@ done
 # Using indexed arrays for better compatibility with older bash versions
 SOURCE_PATHS=(
     "fish/config.fish"
+    # Legacy function files (for backward compatibility)
     "fish/dcc.fish"
     "fish/sshtmux.fish"
+    "fish/conf.d/00-utilities.fish"
+    "fish/conf.d/01-healthcheck.fish"
+    "fish/conf.d/02-aliases.fish"
+    "fish/conf.d/03-git.fish"
+    "fish/conf.d/04-plugins.fish"
+    "fish/conf.d/05-functions.fish"
     "lazyvim/lazyvim.json"
     "lazyvim/option.lua"
     "lazyvim/plugins.lua"
@@ -43,8 +50,15 @@ SOURCE_PATHS=(
 
 TARGET_PATHS=(
     "$HOME/.config/fish/config.fish"
+    # Legacy function files (for backward compatibility)
     "$HOME/.config/fish/functions/dcc.fish"
     "$HOME/.config/fish/functions/sshtmux.fish"
+    "$HOME/.config/fish/conf.d/00-utilities.fish"
+    "$HOME/.config/fish/conf.d/01-healthcheck.fish"
+    "$HOME/.config/fish/conf.d/02-aliases.fish"
+    "$HOME/.config/fish/conf.d/03-git.fish"
+    "$HOME/.config/fish/conf.d/04-plugins.fish"
+    "$HOME/.config/fish/conf.d/05-functions.fish"
     "$HOME/.config/nvim/lazyvim.json"
     "$HOME/.config/nvim/lua/config/options.lua"
     "$HOME/.config/nvim/lua/plugins/plugins.lua"

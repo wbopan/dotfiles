@@ -51,8 +51,18 @@ dcc --dryrun # Preview commands without executing them
 
 The repository uses symbolic links to connect configuration files from this repository to their expected locations in the home directory:
 
-- `fish/config.fish` → `~/.config/fish/config.fish`
+### Fish Shell Configuration
+- `fish/config.fish` → `~/.config/fish/config.fish` (Main configuration file)
 - `fish/dcc.fish` → `~/.config/fish/functions/dcc.fish` (DevContainer CLI wrapper)
+- `fish/sshtmux.fish` → `~/.config/fish/functions/sshtmux.fish` (SSH tmux wrapper)
+- `fish/conf.d/00-utilities.fish` → `~/.config/fish/conf.d/00-utilities.fish` (Core utilities)
+- `fish/conf.d/01-healthcheck.fish` → `~/.config/fish/conf.d/01-healthcheck.fish` (Healthcheck function)
+- `fish/conf.d/02-aliases.fish` → `~/.config/fish/conf.d/02-aliases.fish` (Common aliases)
+- `fish/conf.d/03-git.fish` → `~/.config/fish/conf.d/03-git.fish` (Git aliases)
+- `fish/conf.d/04-plugins.fish` → `~/.config/fish/conf.d/04-plugins.fish` (Plugin initialization)
+- `fish/conf.d/05-functions.fish` → `~/.config/fish/conf.d/05-functions.fish` (Custom functions)
+
+### Other Configurations
 - `lazyvim/lazyvim.json` → `~/.config/nvim/lazyvim.json`
 - `lazyvim/option.lua` → `~/.config/nvim/lua/config/options.lua`
 - `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`
@@ -98,6 +108,12 @@ The feature automatically:
 
 ## Recent Updates
 
+### Fish Configuration Restructure
+- **Modular configuration**: Split `config.fish` into modular `conf.d/` files for better organization
+- **Automatic loading**: Fish automatically sources files from `conf.d/` directory
+- **Logical grouping**: Configuration split into utilities, healthcheck, aliases, git, plugins, and functions
+- **Numbered prefixes**: Ensures proper loading order with `00-` through `05-` prefixes
+
 ### DevContainer CLI (dcc) Enhancements
 - **--dryrun flag**: Preview commands without executing them
 - **Container runtime auto-detection**: Automatically detects and uses podman or docker
@@ -106,3 +122,6 @@ The feature automatically:
 
 ### Installation and Uninstallation Scripts
 - Update @install.sh and @uninstall.sh after add new scripts
+
+## Code Maintenance Guidelines
+- When you remove a feature, please consider leave some back-compat code in @uninstall.sh 

@@ -42,6 +42,8 @@ tx <command>                  # Run command in new tmux session
 dcc                           # DevContainer CLI wrapper with enhanced features (defined in fish/conf.d/05-functions.fish)
 dcc --dryrun                  # Preview commands without executing them
 sshtmux <host>                # SSH to host and create/attach tmux session with timestamp
+op-sync                       # Sync environment variables from 1Password to ~/.profile
+op-status                     # Show 1Password integration status
 ```
 
 ## Architecture
@@ -58,6 +60,11 @@ The repository uses symbolic links to connect configuration files from this repo
 ### Other Configurations
 - `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`
 - `tmux/.tmux.conf` → `~/.tmux.conf`
+
+### 1Password Integration
+- `.env` → `~/.config/fish/.env` (Contains environment variables with 1Password secret references)
+- Uses `op://` protocol for secret references (e.g., `op://Personal/vault/item/field`)
+- Secrets are synced to `~/.profile` using `op-sync` command
 
 The main `install.sh` script:
 1. Creates symbolic links for all configuration files
@@ -79,10 +86,53 @@ The main `install.sh` script:
 - **Centralized dependency management**: All dependencies managed through `fish_deps` command defined in `01-dependencies.fish`
 - **Cross-platform support**: Supports macOS (via Homebrew) and Linux (via apt/dnf/pacman)
 - **Health monitoring**: Use `fish_deps health` to check status of all dependencies
-- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, lazyvim, tpm
+- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, lazyvim, tpm, op
 
 ### Installation and Uninstallation Scripts
 - Update @install.sh and @uninstall.sh after add new scripts
 
 ## Code Maintenance Guidelines
 - When you remove a feature, please consider leave some back-compat code in @uninstall.sh 
+- When adding new fish configuration, create a new file in `fish/conf.d/` with appropriate numeric prefix
+- Test installations using `./install.sh --yes` in a clean environment before committing
+- Always handle both macOS and Linux platforms in dependency installation code
+
+## Security Considerations
+- The `.env` file contains sensitive API keys and tokens using 1Password references
+- Never commit actual secrets - always use 1Password references (op://) in the .env file
+- Use `op-sync` to securely inject secrets from 1Password to `~/.profile`
+- The `.profile` file should have 600 permissions (automatically set by op-sync)
+
+## Testing Changes
+```bash
+# Test installation without affecting existing setup
+./install.sh --dryrun  # Note: --dryrun not currently implemented, use manual testing
+
+# Test specific component installation
+./install.sh --fish --yes
+
+# Test uninstallation with copy mode (preserves configs)
+./uninstall.sh --copy
+
+# Check dependency health after changes
+fish -c "fish_deps health"
+
+# Test custom functions
+fish -c "tx"
+fish -c "dcc --dryrun up"
+```
+
+## DevContainer Integration
+The `dcc` function provides enhanced DevContainer CLI functionality:
+- Automatically detects and uses podman or docker
+- Handles git worktree mounts for proper git integration
+- Provides --dryrun mode for command preview
+- Auto-starts container if not running
+- Integrates with claude CLI for AI assistance within containers
+
+## Common Development Tasks
+- **Add new fish configuration**: Create file in `fish/conf.d/` with next numeric prefix
+- **Add new dependency**: Update `01-dependencies.fish` to add to fish_deps system
+- **Update LazyVim plugins**: Edit `lazyvim/plugins.lua`
+- **Modify tmux config**: Edit `tmux/.tmux.conf`
+- **Add new environment variable**: Add to `.env` with 1Password reference, then run `op-sync`

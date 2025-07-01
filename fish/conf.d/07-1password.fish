@@ -8,10 +8,17 @@ function op-sync --description "Sync environment variables from 1Password to ~/.
         return 1
     end
 
-    # Check if user is signed in
+    # Check if user is signed in, if not, attempt to sign in
     if not op account get >/dev/null 2>&1
-        echo "❌ Not signed in to 1Password. Run: op signin"
-        return 1
+        echo "🔐 Not signed in to 1Password. Attempting to sign in..."
+        
+        # Use eval to properly handle the op signin output
+        if not eval (op signin)
+            echo "❌ Failed to sign in to 1Password"
+            return 1
+        end
+        
+        echo "✅ Successfully signed in to 1Password"
     end
 
     # Get the .env file from fish config directory

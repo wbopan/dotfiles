@@ -89,8 +89,6 @@ function _fish_deps_check_package
     set -l package $argv[1]
     
     switch $package
-        case lazyvim
-            test -d "$HOME/.config/nvim" -a -f "$HOME/.config/nvim/lua/config/lazy.lua"
         case tpm
             test -d "$HOME/.tmux/plugins/tpm"
         case '*'
@@ -287,31 +285,6 @@ function _fish_deps_install_nvim
     end
 end
 
-function _fish_deps_install_lazyvim
-    if _fish_deps_check_package lazyvim
-        echo "LazyVim is already installed."
-        return 0
-    end
-
-    if not _fish_deps_check_package nvim
-        echo "Error: Neovim is required for LazyVim. Install nvim first."
-        return 1
-    end
-
-    echo "Installing LazyVim..."
-    
-    # Remove existing configs
-    rm -rf ~/.config/nvim
-    rm -rf ~/.local/share/nvim
-    rm -rf ~/.local/state/nvim
-    rm -rf ~/.cache/nvim
-
-    # Clone LazyVim starter
-    git clone https://github.com/LazyVim/starter ~/.config/nvim
-    rm -rf ~/.config/nvim/.git
-    
-    echo "LazyVim installed successfully."
-end
 
 function _fish_deps_install_tpm
     if _fish_deps_check_package tpm
@@ -489,14 +462,6 @@ function _fish_deps_uninstall_nvim
     end
 end
 
-function _fish_deps_uninstall_lazyvim
-    echo "Removing LazyVim configuration..."
-    rm -rf ~/.config/nvim
-    rm -rf ~/.local/share/nvim
-    rm -rf ~/.local/state/nvim
-    rm -rf ~/.cache/nvim
-    echo "LazyVim uninstalled."
-end
 
 function _fish_deps_uninstall_tpm
     echo "Removing TPM..."
@@ -546,7 +511,7 @@ function fish_deps
         case install
             if test -z "$package"
                 echo "Usage: fish_deps install <package>"
-                echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim lazyvim tpm op"
+                echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op"
                 return 1
             end
             
@@ -576,7 +541,7 @@ function fish_deps
             echo "🔍 Dependency Health Check"
             echo "========================"
             
-            set -l packages zoxide direnv fzf bat eza fd tmux uv rg nvim lazyvim tpm op
+            set -l packages zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op
             set -l installed 0
             set -l total (count $packages)
             
@@ -606,7 +571,7 @@ function fish_deps
             echo "  uninstall <package> Uninstall package"
             echo "  health              Show dependency health status"
             echo ""
-            echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim lazyvim tpm op"
+            echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op"
             return 1
     end
 end

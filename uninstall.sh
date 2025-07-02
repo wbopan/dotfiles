@@ -33,9 +33,6 @@ SOURCE_PATHS=(
     # Legacy function files (for backward compatibility)
     "fish/dcc.fish"
     "fish/sshtmux.fish"
-    "lazyvim/lazyvim.json"
-    "lazyvim/option.lua"
-    "lazyvim/plugins.lua"
     "tmux/.tmux.conf"
     "kitty/kitty.conf"
     "kitty/current-theme.conf"
@@ -47,9 +44,6 @@ TARGET_PATHS=(
     # Legacy function files (for backward compatibility)
     "$HOME/.config/fish/functions/dcc.fish"
     "$HOME/.config/fish/functions/sshtmux.fish"
-    "$HOME/.config/nvim/lazyvim.json"
-    "$HOME/.config/nvim/lua/config/options.lua"
-    "$HOME/.config/nvim/lua/plugins/plugins.lua"
     "$HOME/.tmux.conf"
     "$HOME/.config/kitty/kitty.conf"
     "$HOME/.config/kitty/current-theme.conf"

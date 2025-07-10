@@ -1,5 +1,5 @@
 # List of candidate ports
-set candidate_ports 17890 7899 7890 7891
+set candidate_ports 7899 7890 7891 17890
 set PROXY_PORT ""
 
 for port in $candidate_ports
@@ -14,3 +14,4 @@ if test -n "$PROXY_PORT"
     set -gx HTTP_PROXY $ALL_PROXY
     set -gx HTTPS_PROXY $ALL_PROXY
 end
+

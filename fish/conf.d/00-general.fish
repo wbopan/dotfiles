@@ -19,9 +19,12 @@ function _load_profile_env --description "Load environment variables from ~/.pro
             if test (count $kv) -eq 2
                 set -l key $kv[1]
                 set -l value $kv[2]
-                # Only set if not already set in Fish to avoid overwriting Fish-specific settings
-                if not set -q $key
-                    set -gx $key $value
+                # Skip read-only variables like '_' which cannot be set in Fish
+                if test "$key" != "_"
+                    # Only set if not already set in Fish to avoid overwriting Fish-specific settings
+                    if not set -q $key
+                        set -gx $key $value
+                    end
                 end
             end
         end

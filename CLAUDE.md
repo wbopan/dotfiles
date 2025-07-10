@@ -62,6 +62,9 @@ The repository uses symbolic links to connect configuration files from this repo
 - `.env` → `~/.config/fish/.env` (Contains environment variables with 1Password secret references)
 - Uses `op://` protocol for secret references (e.g., `op://Personal/vault/item/field`)
 - Secrets are synced to `~/.profile` using `op-sync` command
+- **POSIX Compatibility**: Fish cannot directly source `.profile` files with POSIX/bash syntax
+  - The `_load_profile_env` function in `00-general.fish` uses bash to export environment variables
+  - This approach safely loads `.profile` variables into Fish without syntax errors
 
 The main `install.sh` script:
 1. Creates symbolic links for all configuration files

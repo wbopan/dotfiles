@@ -99,9 +99,9 @@ function op-sync --description "Sync environment variables from 1Password to ~/.
 
     echo "✅ Successfully synced "(count (string split "\n" "$injected_content"))" environment variables to ~/.profile"
     
-    # Source the updated profile
+    # Reload environment variables using our helper function
     echo "🔄 Loading new environment variables..."
-    source ~/.profile
+    _load_profile_env
     echo "✅ Environment variables loaded successfully"
 end
 

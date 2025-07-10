@@ -26,3 +26,6 @@ Icon?
 
 # Fish shell
 fish_variables
+
+# Git worktrees
+worktrees/

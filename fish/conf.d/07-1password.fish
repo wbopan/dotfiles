@@ -163,4 +163,5 @@ function _op_auto_sync_check
 end
 
 # Run auto-sync check on shell startup
-_op_auto_sync_check
+# Disabled automatic 1Password check on startup to prevent authentication prompts. Run 'op-status' manually to check 1Password integration.
+# _op_auto_sync_check

@@ -77,7 +77,6 @@ YES_MODE=false
 # Default to install all components
 INSTALL_FISH=true
 INSTALL_TMUX=true
-INSTALL_LAZYVIM=true
 SELECTIVE_MODE=false
 FISH_CONFIGURED=false
 
@@ -92,7 +91,6 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_LAZYVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_FISH=true
@@ -103,21 +101,9 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_LAZYVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_TMUX=true
-            shift
-            ;;
-        --lazyvim)
-            if [ "$SELECTIVE_MODE" = false ]; then
-                # First selective flag - disable all, then enable this one
-                INSTALL_FISH=false
-                INSTALL_TMUX=false
-                INSTALL_LAZYVIM=false
-                SELECTIVE_MODE=true
-            fi
-            INSTALL_LAZYVIM=true
             shift
             ;;
         --no-fish)
@@ -128,37 +114,29 @@ while [[ $# -gt 0 ]]; do
             INSTALL_TMUX=false
             shift
             ;;
-        --no-lazyvim)
-            INSTALL_LAZYVIM=false
-            shift
-            ;;
         --all|-a)
             INSTALL_FISH=true
             INSTALL_TMUX=true
-            INSTALL_LAZYVIM=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "By default, installs all configurations (fish, tmux, lazyvim)."
+            echo "By default, installs all configurations (fish, tmux)."
             echo ""
             echo "Options:"
             echo "  --fish         Install only fish shell configuration"
             echo "  --tmux         Install only tmux configuration" 
-            echo "  --lazyvim      Install only LazyVim configuration"
             echo "  --all, -a      Install all configurations (default)"
             echo ""
             echo "  --no-fish      Skip fish shell configuration"
             echo "  --no-tmux      Skip tmux configuration"
-            echo "  --no-lazyvim   Skip LazyVim configuration"
             echo ""
             echo "  --yes, -y      Non-interactive mode (auto-backup existing files)"
             echo "  --help, -h     Show this help message"
             echo ""
             echo "Examples:"
             echo "  $0                    # Install everything"
-            echo "  $0 --no-lazyvim       # Install fish + tmux only"
             echo "  $0 --fish --tmux      # Install fish + tmux only"
             echo "  $0 --yes              # Install everything non-interactively"
             exit 0
@@ -196,11 +174,6 @@ if [ "$INSTALL_FISH" = true ]; then
     done
 fi
 
-# Add LazyVim configuration if requested
-if [ "$INSTALL_LAZYVIM" = true ]; then
-    SOURCE_PATHS+=("lazyvim/plugins.lua")
-    TARGET_PATHS+=("$HOME/.config/nvim/lua/plugins/plugins.lua")
-fi
 
 # Add tmux configuration if requested
 if [ "$INSTALL_TMUX" = true ]; then

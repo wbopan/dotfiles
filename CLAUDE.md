@@ -6,7 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a dotfiles repository for managing personal configuration files across different tools:
 - Fish shell configuration
-- LazyVim (Neovim) configuration
 - Tmux configuration
 
 ## Key Commands
@@ -19,7 +18,6 @@ This is a dotfiles repository for managing personal configuration files across d
 # Install specific components
 ./install.sh --fish      # Install fish shell configuration only
 ./install.sh --tmux      # Install tmux configuration only
-./install.sh --lazyvim   # Install LazyVim configuration only
 
 # Install all dotfiles and dependencies
 ./install.sh --all
@@ -58,7 +56,6 @@ The repository uses symbolic links to connect configuration files from this repo
   - Functions like `dcc`, `sshtmux`, and `tx` are defined in `05-functions.fish`
 
 ### Other Configurations
-- `lazyvim/plugins.lua` → `~/.config/nvim/lua/plugins/plugins.lua`
 - `tmux/.tmux.conf` → `~/.tmux.conf`
 
 ### 1Password Integration
@@ -86,7 +83,7 @@ The main `install.sh` script:
 - **Centralized dependency management**: All dependencies managed through `fish_deps` command defined in `01-dependencies.fish`
 - **Cross-platform support**: Supports macOS (via Homebrew) and Linux (via apt/dnf/pacman)
 - **Health monitoring**: Use `fish_deps health` to check status of all dependencies
-- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, lazyvim, tpm, op
+- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, tpm, op
 
 ### Installation and Uninstallation Scripts
 - Update @install.sh and @uninstall.sh after add new scripts
@@ -133,6 +130,5 @@ The `dcc` function provides enhanced DevContainer CLI functionality:
 ## Common Development Tasks
 - **Add new fish configuration**: Create file in `fish/conf.d/` with next numeric prefix
 - **Add new dependency**: Update `01-dependencies.fish` to add to fish_deps system
-- **Update LazyVim plugins**: Edit `lazyvim/plugins.lua`
 - **Modify tmux config**: Edit `tmux/.tmux.conf`
 - **Add new environment variable**: Add to `.env` with 1Password reference, then run `op-sync`

@@ -11,75 +11,74 @@ function _fish_deps_has_brew
     command -v brew >/dev/null 2>&1
 end
 
-function _fish_deps_has_apt
-    command -v apt >/dev/null 2>&1
-end
-
-function _fish_deps_has_dnf
-    command -v dnf >/dev/null 2>&1
-end
-
-function _fish_deps_has_pacman
-    command -v pacman >/dev/null 2>&1
-end
-
 function _fish_deps_has_cargo
     command -v cargo >/dev/null 2>&1
 end
 
-# Package manager helper functions
-function _fish_deps_install_via_system_pkg
-    set -l package $argv[1]
-    set -l apt_name $argv[2]
-    set -l dnf_name $argv[3] 
-    set -l pacman_name $argv[4]
+# Homebrew installation helper for Linux
+function _fish_deps_install_brew_linux
+    echo "Installing Homebrew for Linux..."
     
-    # Use provided names or default to package name
-    if test -z "$apt_name"
-        set apt_name $package
-    end
-    if test -z "$dnf_name"
-        set dnf_name $package
-    end
-    if test -z "$pacman_name"
-        set pacman_name $package
+    # Check if we already have brew
+    if _fish_deps_has_brew
+        echo "Homebrew is already installed."
+        return 0
     end
     
-    if _fish_deps_has_apt
-        sudo apt update && sudo apt install -y $apt_name
-    else if _fish_deps_has_dnf
-        sudo dnf install -y $dnf_name
-    else if _fish_deps_has_pacman
-        sudo pacman -S --noconfirm $pacman_name
+    # Detect Linux distribution and install prerequisites
+    if command -v apt-get >/dev/null 2>&1
+        # Debian/Ubuntu
+        echo "Installing prerequisites for Debian/Ubuntu..."
+        sudo apt-get update
+        sudo apt-get install -y build-essential procps curl file git
+    else if command -v dnf >/dev/null 2>&1
+        # Fedora/RHEL/CentOS
+        echo "Installing prerequisites for Fedora/RHEL/CentOS..."
+        sudo dnf group install -y 'Development Tools'
+        sudo dnf install -y procps-ng curl file git
+    else if command -v pacman >/dev/null 2>&1
+        # Arch Linux
+        echo "Installing prerequisites for Arch Linux..."
+        sudo pacman -S --noconfirm base-devel procps-ng curl file git
+    else if command -v zypper >/dev/null 2>&1
+        # openSUSE
+        echo "Installing prerequisites for openSUSE..."
+        sudo zypper install -y -t pattern devel_basis
+        sudo zypper install -y curl file git
     else
-        return 1
-    end
-end
-
-function _fish_deps_uninstall_via_system_pkg
-    set -l package $argv[1]
-    set -l apt_name $argv[2]
-    set -l dnf_name $argv[3]
-    set -l pacman_name $argv[4]
-    
-    # Use provided names or default to package name
-    if test -z "$apt_name"
-        set apt_name $package
-    end
-    if test -z "$dnf_name"
-        set dnf_name $package
-    end
-    if test -z "$pacman_name"
-        set pacman_name $package
+        echo "Warning: Could not detect package manager. Please install build tools, curl, file, and git manually."
     end
     
-    if _fish_deps_has_apt
-        sudo apt remove -y $apt_name
-    else if _fish_deps_has_dnf
-        sudo dnf remove -y $dnf_name
-    else if _fish_deps_has_pacman
-        sudo pacman -R --noconfirm $pacman_name
+    # Install Homebrew
+    echo "Running Homebrew installation script..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH for current session
+    if test -d ~/.linuxbrew
+        eval "$(~/.linuxbrew/bin/brew shellenv)"
+    else if test -d /home/linuxbrew/.linuxbrew
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    end
+    
+    # Add Homebrew to fish config if not already there
+    set -l brew_init_file "$HOME/.config/fish/conf.d/homebrew.fish"
+    if not test -f "$brew_init_file"
+        echo "Adding Homebrew to fish configuration..."
+        echo '# Homebrew initialization' > "$brew_init_file"
+        echo 'if test -d ~/.linuxbrew' >> "$brew_init_file"
+        echo '    eval "$(~/.linuxbrew/bin/brew shellenv)"' >> "$brew_init_file"
+        echo 'else if test -d /home/linuxbrew/.linuxbrew' >> "$brew_init_file"
+        echo '    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$brew_init_file"
+        echo 'end' >> "$brew_init_file"
+    end
+    
+    # Verify installation
+    if _fish_deps_has_brew
+        echo "Homebrew installed successfully!"
+        brew --version
+        return 0
     else
+        echo "Error: Homebrew installation failed. Please check the output above."
         return 1
     end
 end
@@ -106,13 +105,15 @@ function _fish_deps_install_zoxide
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg zoxide
-            if _fish_deps_has_cargo
-                cargo install zoxide --locked
-            else
-                echo "Error: No supported package manager found for zoxide"
-                return 1
-            end
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install zoxide
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -126,8 +127,15 @@ function _fish_deps_install_direnv
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg direnv
-            curl -sfL https://direnv.net/install.sh | bash
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install direnv
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -141,9 +149,15 @@ function _fish_deps_install_fzf
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg fzf
-            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-            ~/.fzf/install --all
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install fzf
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -157,13 +171,15 @@ function _fish_deps_install_bat
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg bat
-            if _fish_deps_has_cargo
-                cargo install bat
-            else
-                echo "Error: No supported package manager found for bat"
-                return 1
-            end
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install bat
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -177,13 +193,15 @@ function _fish_deps_install_eza
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg eza
-            if _fish_deps_has_cargo
-                cargo install eza
-            else
-                echo "Error: No supported package manager found for eza"
-                return 1
-            end
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install eza
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -197,13 +215,15 @@ function _fish_deps_install_fd
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg fd fd-find fd-find fd
-            if _fish_deps_has_cargo
-                cargo install fd-find
-            else
-                echo "Error: No supported package manager found for fd"
-                return 1
-            end
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install fd
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -217,34 +237,22 @@ function _fish_deps_install_tmux
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg tmux
-            echo "Error: No supported package manager found for tmux"
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install tmux
+        else
+            echo "Error: Failed to install Homebrew."
             return 1
         end
     end
 end
 
 function _fish_deps_install_uv
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew install uv
-        else
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        end
-    else if _fish_deps_is_linux
-        if _fish_deps_has_apt
-            # uv not typically in apt, use pip or curl
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        else if _fish_deps_has_dnf
-            # uv not typically in dnf, use curl
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        else if _fish_deps_has_pacman
-            # uv not typically in pacman, use curl
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        else
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        end
-    end
+    # uv uses its own installer on all platforms
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 end
 
 function _fish_deps_install_rg
@@ -256,13 +264,15 @@ function _fish_deps_install_rg
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg rg ripgrep ripgrep ripgrep
-            if _fish_deps_has_cargo
-                cargo install ripgrep
-            else
-                echo "Error: No supported package manager found for ripgrep"
-                return 1
-            end
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install ripgrep
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -276,11 +286,15 @@ function _fish_deps_install_nvim
             return 1
         end
     else if _fish_deps_is_linux
-        if not _fish_deps_install_via_system_pkg nvim neovim neovim neovim
-            # Download latest stable release
-            curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-            chmod u+x nvim.appimage
-            sudo mv nvim.appimage /usr/local/bin/nvim
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            brew install neovim
+        else
+            echo "Error: Failed to install Homebrew."
+            return 1
         end
     end
 end
@@ -312,153 +326,101 @@ function _fish_deps_install_op
             return 1
         end
     else if _fish_deps_is_linux
-        if _fish_deps_has_apt
-            # Set up 1Password official repository for Debian/Ubuntu
-            echo "Setting up 1Password repository..."
-            curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
-            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main" | sudo tee /etc/apt/sources.list.d/1password.list
-            sudo apt update && sudo apt install -y 1password-cli
-        else if _fish_deps_has_dnf
-            # Set up 1Password official repository for Fedora
-            echo "Setting up 1Password repository..."
-            sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
-            sudo sh -c 'echo -e "[1password]\nname=1Password\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=\"https://downloads.1password.com/linux/keys/1password.asc\"" > /etc/yum.repos.d/1password.repo'
-            sudo dnf install -y 1password-cli
-        else if _fish_deps_has_pacman
-            # For Arch Linux, try AUR or manual installation
-            echo "Error: 1Password CLI not available in official Arch repositories."
-            echo "Please install manually from AUR or download from https://1password.com/downloads/command-line"
-            return 1
+        if not _fish_deps_has_brew
+            echo "Homebrew not found. Installing Homebrew first..."
+            _fish_deps_install_brew_linux
+        end
+        if _fish_deps_has_brew
+            # Check if 1password-cli is available in brew for Linux
+            if brew search 1password-cli >/dev/null 2>&1
+                brew install 1password-cli
+            else
+                # Fall back to manual installation for Linux
+                echo "1Password CLI not available in Homebrew for Linux. Installing manually..."
+                # Detect architecture
+                set -l arch (uname -m)
+                switch $arch
+                    case x86_64
+                        set arch amd64
+                    case aarch64
+                        set arch arm64
+                end
+                
+                # Download and install
+                set -l tmp_dir (mktemp -d)
+                curl -sSL "https://downloads.1password.com/linux/cli/stable/$arch/op.tar.gz" -o "$tmp_dir/op.tar.gz"
+                tar -xzf "$tmp_dir/op.tar.gz" -C "$tmp_dir"
+                sudo mv "$tmp_dir/op" /usr/local/bin/
+                sudo chmod +x /usr/local/bin/op
+                rm -rf "$tmp_dir"
+                echo "1Password CLI installed successfully."
+            end
         else
-            echo "Error: No supported package manager found for 1Password CLI"
-            echo "Please install manually from https://1password.com/downloads/command-line"
+            echo "Error: Failed to install Homebrew."
             return 1
         end
-    else
-        echo "Error: Unsupported platform for 1Password CLI installation"
-        return 1
     end
 end
 
 # Package uninstall functions
 function _fish_deps_uninstall_zoxide
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall zoxide
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg zoxide
-            if _fish_deps_has_cargo
-                cargo uninstall zoxide
-            end
-        end
+    if _fish_deps_has_brew
+        brew uninstall zoxide
     end
 end
 
 function _fish_deps_uninstall_direnv
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall direnv
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg direnv
-            rm -f /usr/local/bin/direnv
-        end
+    if _fish_deps_has_brew
+        brew uninstall direnv
     end
 end
 
 function _fish_deps_uninstall_fzf
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall fzf
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg fzf
-            rm -rf ~/.fzf
-        end
+    if _fish_deps_has_brew
+        brew uninstall fzf
     end
 end
 
 function _fish_deps_uninstall_bat
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall bat
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg bat
-            if _fish_deps_has_cargo
-                cargo uninstall bat
-            end
-        end
+    if _fish_deps_has_brew
+        brew uninstall bat
     end
 end
 
 function _fish_deps_uninstall_eza
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall eza
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg eza
-            if _fish_deps_has_cargo
-                cargo uninstall eza
-            end
-        end
+    if _fish_deps_has_brew
+        brew uninstall eza
     end
 end
 
 function _fish_deps_uninstall_fd
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall fd
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg fd fd-find fd-find fd
-            if _fish_deps_has_cargo
-                cargo uninstall fd-find
-            end
-        end
+    if _fish_deps_has_brew
+        brew uninstall fd
     end
 end
 
 function _fish_deps_uninstall_tmux
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall tmux
-        end
-    else if _fish_deps_is_linux
-        _fish_deps_uninstall_via_system_pkg tmux
+    if _fish_deps_has_brew
+        brew uninstall tmux
     end
 end
 
 function _fish_deps_uninstall_uv
+    # Remove uv from common installation locations
     rm -f ~/.cargo/bin/uv
     rm -f /usr/local/bin/uv
+    rm -f ~/.local/bin/uv
 end
 
 function _fish_deps_uninstall_rg
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall ripgrep
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg rg ripgrep ripgrep ripgrep
-            if _fish_deps_has_cargo
-                cargo uninstall ripgrep
-            end
-        end
+    if _fish_deps_has_brew
+        brew uninstall ripgrep
     end
 end
 
 function _fish_deps_uninstall_nvim
-    if _fish_deps_is_macos
-        if _fish_deps_has_brew
-            brew uninstall neovim
-        end
-    else if _fish_deps_is_linux
-        if not _fish_deps_uninstall_via_system_pkg nvim neovim neovim neovim
-            sudo rm -f /usr/local/bin/nvim
-        end
+    if _fish_deps_has_brew
+        brew uninstall neovim
     end
 end
 
@@ -475,23 +437,12 @@ function _fish_deps_uninstall_op
             brew uninstall --cask 1password-cli
         end
     else if _fish_deps_is_linux
-        if _fish_deps_has_apt
-            sudo apt remove -y 1password-cli
-            # Optionally remove the repository (commented out to preserve for future installs)
-            # sudo rm -f /etc/apt/sources.list.d/1password.list
-            # sudo rm -f /usr/share/keyrings/1password-archive-keyring.gpg
-        else if _fish_deps_has_dnf
-            sudo dnf remove -y 1password-cli
-            # Optionally remove the repository (commented out to preserve for future installs)
-            # sudo rm -f /etc/yum.repos.d/1password.repo
-        else if _fish_deps_has_pacman
-            # For manual installations, remove binary
-            sudo rm -f /usr/local/bin/op
-        else
-            # Fallback: remove common manual installation locations
-            sudo rm -f /usr/local/bin/op
-            sudo rm -f /usr/bin/op
+        if _fish_deps_has_brew
+            # Try to uninstall via brew first
+            brew uninstall 1password-cli 2>/dev/null
         end
+        # Also remove manual installation
+        sudo rm -f /usr/local/bin/op
     end
 end
 
@@ -575,4 +526,3 @@ function fish_deps
             return 1
     end
 end
-

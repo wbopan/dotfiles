@@ -77,6 +77,7 @@ YES_MODE=false
 # Default to install all components
 INSTALL_FISH=true
 INSTALL_TMUX=true
+INSTALL_CLAUDE=true
 SELECTIVE_MODE=false
 FISH_CONFIGURED=false
 
@@ -91,6 +92,7 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
+                INSTALL_CLAUDE=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_FISH=true
@@ -101,9 +103,21 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
+                INSTALL_CLAUDE=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_TMUX=true
+            shift
+            ;;
+        --claude)
+            if [ "$SELECTIVE_MODE" = false ]; then
+                # First selective flag - disable all, then enable this one
+                INSTALL_FISH=false
+                INSTALL_TMUX=false
+                INSTALL_CLAUDE=false
+                SELECTIVE_MODE=true
+            fi
+            INSTALL_CLAUDE=true
             shift
             ;;
         --no-fish)
@@ -114,23 +128,30 @@ while [[ $# -gt 0 ]]; do
             INSTALL_TMUX=false
             shift
             ;;
+        --no-claude)
+            INSTALL_CLAUDE=false
+            shift
+            ;;
         --all|-a)
             INSTALL_FISH=true
             INSTALL_TMUX=true
+            INSTALL_CLAUDE=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "By default, installs all configurations (fish, tmux)."
+            echo "By default, installs all configurations (fish, tmux, claude)."
             echo ""
             echo "Options:"
             echo "  --fish         Install only fish shell configuration"
-            echo "  --tmux         Install only tmux configuration" 
+            echo "  --tmux         Install only tmux configuration"
+            echo "  --claude       Install only Claude custom commands" 
             echo "  --all, -a      Install all configurations (default)"
             echo ""
             echo "  --no-fish      Skip fish shell configuration"
             echo "  --no-tmux      Skip tmux configuration"
+            echo "  --no-claude    Skip Claude custom commands"
             echo ""
             echo "  --yes, -y      Non-interactive mode (auto-backup existing files)"
             echo "  --help, -h     Show this help message"
@@ -138,6 +159,7 @@ while [[ $# -gt 0 ]]; do
             echo "Examples:"
             echo "  $0                    # Install everything"
             echo "  $0 --fish --tmux      # Install fish + tmux only"
+            echo "  $0 --claude           # Install Claude commands only"
             echo "  $0 --yes              # Install everything non-interactively"
             exit 0
             ;;
@@ -179,6 +201,19 @@ fi
 if [ "$INSTALL_TMUX" = true ]; then
     SOURCE_PATHS+=("tmux/.tmux.conf")
     TARGET_PATHS+=("$HOME/.tmux.conf")
+fi
+
+# Add Claude custom commands if requested
+if [ "$INSTALL_CLAUDE" = true ]; then
+    # Auto-discover and add all .md files in claude/commands directory
+    for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
+        if [ -f "$cmd_file" ]; then
+            # Extract just the filename from the full path
+            cmd_filename=$(basename "$cmd_file")
+            SOURCE_PATHS+=("claude/commands/$cmd_filename")
+            TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
+        fi
+    done
 fi
 
 # Function to create backup and link

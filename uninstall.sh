@@ -66,6 +66,16 @@ if [ -L "$HOME/.config/fish/conf.d" ]; then
     TARGET_PATHS+=("$HOME/.config/fish/conf.d")
 fi
 
+# Auto-discover and add all .md files in claude/commands directory for unlinking
+for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
+    if [ -f "$cmd_file" ]; then
+        # Extract just the filename from the full path
+        cmd_filename=$(basename "$cmd_file")
+        SOURCE_PATHS+=("claude/commands/$cmd_filename")
+        TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
+    fi
+done
+
 # Function to find the most recent backup file
 find_latest_backup() {
     local target=$1

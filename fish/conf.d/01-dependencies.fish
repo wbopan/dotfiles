@@ -344,16 +344,31 @@ function _fish_deps_install_op
                         set arch amd64
                     case aarch64
                         set arch arm64
+                    case armv7l
+                        set arch arm
+                    case i686
+                        set arch 386
                 end
+                
+                # Get latest version
+                set -l version "v2.31.1"
                 
                 # Download and install
                 set -l tmp_dir (mktemp -d)
-                curl -sSL "https://downloads.1password.com/linux/cli/stable/$arch/op.tar.gz" -o "$tmp_dir/op.tar.gz"
-                tar -xzf "$tmp_dir/op.tar.gz" -C "$tmp_dir"
-                sudo mv "$tmp_dir/op" /usr/local/bin/
-                sudo chmod +x /usr/local/bin/op
-                rm -rf "$tmp_dir"
-                echo "1Password CLI installed successfully."
+                set -l download_url "https://cache.agilebits.com/dist/1P/op2/pkg/$version/op_linux_"$arch"_"$version".zip"
+                
+                echo "Downloading 1Password CLI from $download_url..."
+                if curl -sSfL "$download_url" -o "$tmp_dir/op.zip"
+                    unzip -q "$tmp_dir/op.zip" -d "$tmp_dir"
+                    sudo mv "$tmp_dir/op" /usr/local/bin/
+                    sudo chmod +x /usr/local/bin/op
+                    rm -rf "$tmp_dir"
+                    echo "1Password CLI installed successfully."
+                else
+                    echo "Error: Failed to download 1Password CLI."
+                    rm -rf "$tmp_dir"
+                    return 1
+                end
             end
         else
             echo "Error: Failed to install Homebrew."

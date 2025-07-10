@@ -76,6 +76,10 @@ for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
     fi
 done
 
+# Add Neovim configuration path
+SOURCE_PATHS+=("nvim/init.lua")
+TARGET_PATHS+=("$HOME/.config/nvim/init.lua")
+
 # Function to find the most recent backup file
 find_latest_backup() {
     local target=$1

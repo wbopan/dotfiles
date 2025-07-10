@@ -8,6 +8,7 @@ This is a dotfiles repository for managing personal configuration files across d
 - Fish shell configuration
 - Tmux configuration
 - Claude Code custom slash commands
+- Neovim configuration
 
 ## Key Commands
 
@@ -20,6 +21,7 @@ This is a dotfiles repository for managing personal configuration files across d
 ./install.sh --fish      # Install fish shell configuration only
 ./install.sh --tmux      # Install tmux configuration only
 ./install.sh --claude    # Install Claude custom commands only
+./install.sh --nvim      # Install Neovim configuration only
 
 # Install all dotfiles and dependencies
 ./install.sh --all
@@ -59,6 +61,13 @@ The repository uses symbolic links to connect configuration files from this repo
 
 ### Other Configurations
 - `tmux/.tmux.conf` → `~/.tmux.conf`
+
+### Neovim Configuration
+- `nvim/init.lua` → `~/.config/nvim/init.lua`
+  - Minimal, near-native configuration with sensible defaults
+  - No external plugins or package managers
+  - Includes essential key mappings, editor settings, and quality of life improvements
+  - Neovim can be installed via `fish_deps install nvim`
 
 ### Claude Code Custom Commands
 - `claude/commands/*.md` → `~/.claude/commands/*.md` (Custom slash commands for Claude Code)
@@ -126,6 +135,7 @@ The main `install.sh` script:
 # Test specific component installation
 ./install.sh --fish --yes
 ./install.sh --claude --yes
+./install.sh --nvim --yes
 
 # Test uninstallation with copy mode (preserves configs)
 ./uninstall.sh --copy
@@ -150,5 +160,6 @@ The `dcc` function provides enhanced DevContainer CLI functionality:
 - **Add new fish configuration**: Create file in `fish/conf.d/` with next numeric prefix
 - **Add new dependency**: Update `01-dependencies.fish` to add to fish_deps system
 - **Modify tmux config**: Edit `tmux/.tmux.conf`
+- **Modify neovim config**: Edit `nvim/init.lua`
 - **Add new environment variable**: Add to `.env` with 1Password reference, then run `op-sync`
 - **Add new Claude command**: Create `.md` file in `claude/commands/` with command definition

@@ -78,6 +78,7 @@ YES_MODE=false
 INSTALL_FISH=true
 INSTALL_TMUX=true
 INSTALL_CLAUDE=true
+INSTALL_NVIM=true
 SELECTIVE_MODE=false
 FISH_CONFIGURED=false
 
@@ -93,6 +94,7 @@ while [[ $# -gt 0 ]]; do
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
                 INSTALL_CLAUDE=false
+                INSTALL_NVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_FISH=true
@@ -104,6 +106,7 @@ while [[ $# -gt 0 ]]; do
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
                 INSTALL_CLAUDE=false
+                INSTALL_NVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_TMUX=true
@@ -115,9 +118,22 @@ while [[ $# -gt 0 ]]; do
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
                 INSTALL_CLAUDE=false
+                INSTALL_NVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_CLAUDE=true
+            shift
+            ;;
+        --nvim)
+            if [ "$SELECTIVE_MODE" = false ]; then
+                # First selective flag - disable all, then enable this one
+                INSTALL_FISH=false
+                INSTALL_TMUX=false
+                INSTALL_CLAUDE=false
+                INSTALL_NVIM=false
+                SELECTIVE_MODE=true
+            fi
+            INSTALL_NVIM=true
             shift
             ;;
         --no-fish)
@@ -132,26 +148,33 @@ while [[ $# -gt 0 ]]; do
             INSTALL_CLAUDE=false
             shift
             ;;
+        --no-nvim)
+            INSTALL_NVIM=false
+            shift
+            ;;
         --all|-a)
             INSTALL_FISH=true
             INSTALL_TMUX=true
             INSTALL_CLAUDE=true
+            INSTALL_NVIM=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "By default, installs all configurations (fish, tmux, claude)."
+            echo "By default, installs all configurations (fish, tmux, claude, nvim)."
             echo ""
             echo "Options:"
             echo "  --fish         Install only fish shell configuration"
             echo "  --tmux         Install only tmux configuration"
-            echo "  --claude       Install only Claude custom commands" 
+            echo "  --claude       Install only Claude custom commands"
+            echo "  --nvim         Install only Neovim configuration"
             echo "  --all, -a      Install all configurations (default)"
             echo ""
             echo "  --no-fish      Skip fish shell configuration"
             echo "  --no-tmux      Skip tmux configuration"
             echo "  --no-claude    Skip Claude custom commands"
+            echo "  --no-nvim      Skip Neovim configuration"
             echo ""
             echo "  --yes, -y      Non-interactive mode (auto-backup existing files)"
             echo "  --help, -h     Show this help message"
@@ -214,6 +237,12 @@ if [ "$INSTALL_CLAUDE" = true ]; then
             TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
         fi
     done
+fi
+
+# Add Neovim configuration if requested
+if [ "$INSTALL_NVIM" = true ]; then
+    SOURCE_PATHS+=("nvim/init.lua")
+    TARGET_PATHS+=("$HOME/.config/nvim/init.lua")
 fi
 
 # Function to create backup and link

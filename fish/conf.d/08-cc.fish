@@ -30,12 +30,8 @@ function cc_hook_handler
     set -l tool_name (echo $json_input | jq -r '.tool_name // "unknown"' 2>/dev/null || echo "unknown")
     set -l description (echo $json_input | jq -r '.tool_input.description // "No description"' 2>/dev/null || echo "No description")
     
-    # Send appropriate notification
-    if test "$hook_type" = "PreToolUse"
-        cc_pushover_notify "CC: Permission Required" "Tool: $tool_name\n$description" "1"
-    else
-        cc_pushover_notify "CC: Waiting for Input" "Awaiting your response" "1"
-    end
+    # Send notification
+    cc_pushover_notify "CC: Waiting for Input" "Awaiting your response" "1"
     
     return 0
 end
@@ -45,13 +41,6 @@ function cc_setup_hooks
     set -l settings_file "$HOME/.claude/settings.json"
     set -l hooks_config '{
         "hooks": {
-            "PreToolUse": [{
-                "matcher": "*",
-                "hooks": [{
-                    "type": "command",
-                    "command": "fish -c \"cc_hook_handler\""
-                }]
-            }],
             "Notification": [{
                 "matcher": "*", 
                 "hooks": [{
@@ -68,7 +57,7 @@ function cc_setup_hooks
     # Check if settings file exists
     if test -f "$settings_file"
         # Check if our specific hooks are already configured
-        set -l has_cc_hooks (jq '.hooks.PreToolUse[]? | select(.hooks[]?.command | contains("cc_hook_handler"))' "$settings_file" 2>/dev/null | grep -q . && echo "true" || echo "false")
+        set -l has_cc_hooks (jq '.hooks.Notification[]? | select(.hooks[]?.command | contains("cc_hook_handler"))' "$settings_file" 2>/dev/null | grep -q . && echo "true" || echo "false")
         
         if test "$has_cc_hooks" = "false"
             # Check if hooks section exists at all
@@ -81,7 +70,7 @@ function cc_setup_hooks
                 end
             else
                 # Settings has hooks but not our cc_hook_handler
-                if jq '.hooks.PreToolUse += [{"matcher": "*", "hooks": [{"type": "command", "command": "fish -c \"cc_hook_handler\""}]}] | .hooks.Notification += [{"matcher": "*", "hooks": [{"type": "command", "command": "fish -c \"cc_hook_handler\""}]}]' "$settings_file" > "$settings_file.tmp" 2>/dev/null && mv "$settings_file.tmp" "$settings_file" 2>/dev/null
+                if jq '.hooks.Notification += [{"matcher": "*", "hooks": [{"type": "command", "command": "fish -c \"cc_hook_handler\""}]}]' "$settings_file" > "$settings_file.tmp" 2>/dev/null && mv "$settings_file.tmp" "$settings_file" 2>/dev/null
                     echo "CC hooks added to existing settings.json"
                 end
             end

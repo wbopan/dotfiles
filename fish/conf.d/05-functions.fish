@@ -1,5 +1,49 @@
 # Custom functions
 
+# General notification function using ntfy
+function notify
+    set -l title $argv[1]
+    set -l message $argv[2]
+    
+    # Send notification with proper title and message separation
+    # Enable Markdown formatting for proper line breaks
+    curl -s \
+        -H "Title: $title" \
+        -H "X-Markdown: yes" \
+        -d "$message" \
+        ntfy.sh/wenbo-R2osKWmlKv7gQh2m > /dev/null 2>&1
+end
+
+# Command timing for long-running notifications
+set -g CMD_START_TIME 0
+set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
+
+function __cmd_timer_start --on-event fish_preexec
+    set -g CMD_START_TIME (date +%s)
+end
+
+function __cmd_timer_end --on-event fish_postexec
+    if test $CMD_START_TIME -gt 0
+        set -l end_time (date +%s)
+        set -l duration (math $end_time - $CMD_START_TIME)
+        
+        if test $duration -ge $CMD_NOTIFICATION_THRESHOLD
+            set -l minutes (math "floor($duration / 60)")
+            set -l seconds (math "$duration % 60")
+            set -l command $argv[1]
+            
+            # Truncate command if too long for notification
+            if test (string length $command) -gt 80
+                set command (string sub -l 77 $command)"..."
+            end
+            
+            notify "Command Completed" "`$command` finished after $minutes m $seconds s"
+        end
+        
+        set -g CMD_START_TIME 0
+    end
+end
+
 # tx function - tmux session management
 function tx
     if test -n "$TMUX"

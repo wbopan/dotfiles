@@ -27,7 +27,9 @@ function __cmd_timer_end --on-event fish_postexec
         set -l end_time (date +%s)
         set -l duration (math $end_time - $CMD_START_TIME)
         
-        if test $duration -ge $CMD_NOTIFICATION_THRESHOLD
+        # Only notify if duration exceeds threshold AND command wasn't interrupted
+        # Exit status 130 = Ctrl+C (SIGINT), 131 = Ctrl+\ (SIGQUIT)
+        if test $duration -ge $CMD_NOTIFICATION_THRESHOLD -a $status -ne 130 -a $status -ne 131
             set -l minutes (math "floor($duration / 60)")
             set -l seconds (math "$duration % 60")
             set -l command $argv[1]

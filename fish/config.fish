@@ -4,3 +4,4 @@
 
 # Add any user-specific configuration here
 # This file will overwrite the default fish config when installed
+

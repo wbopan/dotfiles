@@ -30,6 +30,7 @@ vim.opt.splitright = true          -- Vertical splits go right
 vim.opt.cursorline = true          -- Highlight current line
 vim.opt.confirm = true             -- Ask to save before quitting
 vim.opt.showtabline = 0            -- Never show tabline
+vim.opt.autoread = true            -- Auto-reload files changed outside of Vim
 
 -- ============================================================================
 -- LEADER KEY
@@ -166,6 +167,11 @@ vim.keymap.set("n", "<leader>Q", ":qa!<CR>", { desc = "Quit all force" })
 -- Paste without yanking in visual mode
 vim.keymap.set("v", "p", '"_dP', { desc = "Paste without yanking" })
 
+-- Copy file paths to clipboard
+vim.keymap.set("n", "<leader>cp", ":let @+=expand('%:p')<CR>", { desc = "Copy absolute file path" })
+vim.keymap.set("n", "<leader>cc", ":let @+=expand('%')<CR>", { desc = "Copy relative file path" })
+vim.keymap.set("n", "<leader>cd", ":let @+=expand('%:p:h')<CR>", { desc = "Copy directory path" })
+
 -- ============================================================================
 -- MACOS/EMACS-STYLE INSERT MODE NAVIGATION
 -- ============================================================================
@@ -185,3 +191,25 @@ vim.keymap.set('i', '<D-Right>', '<C-o>$', { desc = 'Move to end of line' })
 -- Word deletion with backspace
 vim.keymap.set('i', '<C-w>', '<C-o>db', { desc = 'Delete word backwards' })
 vim.keymap.set('i', '<M-BS>', '<C-w>', { desc = 'Delete word backwards (Alt+Backspace)' })
+
+-- ============================================================================
+-- AUTO-RELOAD FILES ON EXTERNAL CHANGES
+-- ============================================================================
+
+-- Auto-reload files when focus returns to Neovim
+vim.api.nvim_create_autocmd({"FocusGained", "BufEnter", "CursorHold", "CursorHoldI"}, {
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" then
+      vim.cmd("checktime")
+    end
+  end
+})
+
+-- Notify when file changes are detected
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  pattern = "*",
+  callback = function()
+    vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
+  end
+})

@@ -66,6 +66,15 @@ function __cmd_timer_end --on-event fish_postexec
     end
 end
 
+function y
+	set tmp (mktemp -t "yazi-cwd.wenbopan")
+	yazi $argv --cwd-file="$tmp"
+	if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+		cd -- "$cwd"
+	end
+	rm -f -- "$tmp"
+end
+
 # tx function - tmux session management
 function tx
     if test -n "$TMUX"

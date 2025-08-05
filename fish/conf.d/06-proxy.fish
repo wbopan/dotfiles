@@ -3,7 +3,7 @@ set candidate_ports 7899 7890 7891 17890
 set PROXY_PORT ""
 
 for port in $candidate_ports
-    if nc -z localhost $port >/dev/null 2>&1
+    if nc -z -w 0.001 localhost $port >/dev/null 2>&1
         set PROXY_PORT $port
         break
     end

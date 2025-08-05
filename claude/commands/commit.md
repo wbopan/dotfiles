@@ -8,7 +8,6 @@ Commit all changes in the current working tree.
 - Git status: !`git status`
 - Git log: !`git log --oneline -n 10`
 - Git diff: !`git diff --compact-summary`
-- Check for pre-commit hook: !`git config --get core.hooksPath`
 
 If you have implemented a feature or updated code, commit only the relevant changes. If you have not made any specific changes, group and commit all changes in the working tree by their content.
 

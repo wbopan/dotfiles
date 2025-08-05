@@ -260,7 +260,7 @@ link_config() {
 
     # Ensure source exists (file or directory)
     if [ ! -e "$source_abs" ]; then
-        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(source not found)${NC}"
+        echo -e "  ${RED}[FAIL]${NC} ${source_rel} ${RED}(source not found)${NC}"
         return
     fi
 
@@ -269,12 +269,12 @@ link_config() {
         if [ "$YES_MODE" = true ]; then
             mkdir -p "$target_dir"
         else
-            echo -e "  ${YELLOW}❓${NC} ${source_rel} -> ${target_short}"
+            echo -e "  ${YELLOW}[?]${NC} ${source_rel} -> ${target_short}"
             read -p "    Create directory $(dirname "$target_short")? (y/N): " confirm_create_dir
             if [[ "$confirm_create_dir" =~ ^[Yy]$ ]]; then
                 mkdir -p "$target_dir"
             else
-                echo -e "  ${YELLOW}⏭️${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
+                echo -e "  ${YELLOW}[>>]${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
                 return
             fi
         fi
@@ -284,7 +284,7 @@ link_config() {
     if [ -e "$target" ] || [ -L "$target" ]; then
         # Check if it's already linked correctly
         if [ -L "$target" ] && [ "$(readlink "$target")" == "$source_abs" ]; then
-            echo -e "  ${YELLOW}✅${NC} ${source_rel} -> ${target_short} ${YELLOW}(synced)${NC}"
+            echo -e "  ${YELLOW}[OK]${NC} ${source_rel} -> ${target_short} ${YELLOW}(synced)${NC}"
             return
         fi
 
@@ -294,11 +294,11 @@ link_config() {
             backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
             mv "$target" "$backup_path"
             if [ $? -ne 0 ]; then
-                echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(backup failed)${NC}"
+                echo -e "  ${RED}[FAIL]${NC} ${source_rel} ${RED}(backup failed)${NC}"
                 return
             fi
         else
-            echo -e "  ${YELLOW}❓${NC} ${source_rel} -> ${target_short} ${YELLOW}(exists)${NC}"
+            echo -e "  ${YELLOW}[?]${NC} ${source_rel} -> ${target_short} ${YELLOW}(exists)${NC}"
             echo -e "    ${CYAN}1)${NC} Replace  ${CYAN}2)${NC} Backup  ${CYAN}3)${NC} Skip"
             read -p "    Choice (1-3): " choice
             
@@ -306,7 +306,7 @@ link_config() {
                 1)
                     rm -rf "$target"
                     if [ $? -ne 0 ]; then
-                        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(failed to remove)${NC}"
+                        echo -e "  ${RED}[FAIL]${NC} ${source_rel} ${RED}(failed to remove)${NC}"
                         return
                     fi
                     ;;
@@ -314,12 +314,12 @@ link_config() {
                     backup_path="${target}.bak.$(date +%Y%m%d%H%M%S)"
                     mv "$target" "$backup_path"
                     if [ $? -ne 0 ]; then
-                        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(backup failed)${NC}"
+                        echo -e "  ${RED}[FAIL]${NC} ${source_rel} ${RED}(backup failed)${NC}"
                         return
                     fi
                     ;;
                 3|*)
-                    echo -e "  ${YELLOW}⏭️${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
+                    echo -e "  ${YELLOW}[>>]${NC}  ${source_rel} ${YELLOW}(skipped)${NC}"
                     return
                     ;;
             esac
@@ -329,9 +329,9 @@ link_config() {
     # Create symbolic link
     ln -s "$source_abs" "$target"
     if [ $? -eq 0 ]; then
-        echo -e "  ${GREEN}✅${NC} ${source_rel} -> ${target_short}"
+        echo -e "  ${GREEN}[OK]${NC} ${source_rel} -> ${target_short}"
     else
-        echo -e "  ${RED}❌${NC} ${source_rel} ${RED}(link failed)${NC}"
+        echo -e "  ${RED}[FAIL]${NC} ${source_rel} ${RED}(link failed)${NC}"
     fi
 }
 
@@ -394,4 +394,4 @@ else
 fi
 
 echo ""
-print_header "All done! 🎉"
+print_header "All done!"

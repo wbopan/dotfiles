@@ -5,7 +5,7 @@ has uv; and eval (uv generate-shell-completion fish)
 
 # Additional plugin initializations
 has eza; and alias ls 'eza'; and alias tree 'eza --tree'
-has fzf; and fzf --fish | source
+# has fzf; and fzf --fish | source
 test -f ~/.fzf.fish; and source ~/.fzf.fish
 has direnv; and direnv hook fish | source
 has uv; and uv generate-shell-completion fish | source

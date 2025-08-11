@@ -1,5 +1,5 @@
 # Plugin initialization
-has zoxide; and zoxide init fish --cmd cd | source
+# has zoxide; and zoxide init fish --cmd cd | source
 has direnv; and eval (direnv hook fish)
 has uv; and eval (uv generate-shell-completion fish)
 

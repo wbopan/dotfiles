@@ -1,3 +1,9 @@
+# Check if jq is available
+if not command -v jq >/dev/null 2>&1
+    # Skip loading this file if jq is not installed
+    return 0
+end
+
 # Hook handler for CC notifications
 function cc_hook_handler
     # Read JSON input from stdin

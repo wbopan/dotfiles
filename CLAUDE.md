@@ -105,7 +105,7 @@ The main `install.sh` script:
 - **Centralized dependency management**: All dependencies managed through `fish_deps` command defined in `01-dependencies.fish`
 - **Cross-platform support**: Supports macOS (via Homebrew) and Linux (via apt/dnf/pacman)
 - **Health monitoring**: Use `fish_deps health` to check status of all dependencies
-- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, tpm, op
+- **Available packages**: zoxide, direnv, fzf, bat, eza, fd, tmux, uv, rg, nvim, tpm, op, gh
 
 ### Installation and Uninstallation Scripts
 - Update @install.sh and @uninstall.sh after add new scripts

@@ -377,6 +377,29 @@ function _fish_deps_install_op
     end
 end
 
+function _fish_deps_install_gh
+    switch (uname)
+        case Darwin
+            brew install gh
+        case Linux
+            if command -v apt-get >/dev/null 2>&1
+                # Add GitHub CLI APT repository
+                curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+                echo "deb [arch="(dpkg --print-architecture)" signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+                sudo apt update
+                sudo apt install gh -y
+            else if _fish_deps_has_brew
+                brew install gh
+            else
+                echo "Installing Homebrew first..."
+                _fish_deps_install_brew_linux
+                if _fish_deps_has_brew
+                    brew install gh
+                end
+            end
+    end
+end
+
 # Package uninstall functions
 function _fish_deps_uninstall_zoxide
     if _fish_deps_has_brew
@@ -461,6 +484,14 @@ function _fish_deps_uninstall_op
     end
 end
 
+function _fish_deps_uninstall_gh
+    if _fish_deps_has_brew
+        brew uninstall gh
+    else if command -v apt-get >/dev/null 2>&1
+        sudo apt remove gh -y
+    end
+end
+
 # Main fish_deps function
 function fish_deps
     set -l command $argv[1]
@@ -477,7 +508,7 @@ function fish_deps
         case install
             if test -z "$package"
                 echo "Usage: fish_deps install <package>"
-                echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op"
+                echo "Available packages: zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op gh"
                 return 1
             end
             
@@ -507,7 +538,7 @@ function fish_deps
             echo "🔍 Dependency Health Check"
             echo "========================"
             
-            set -l packages zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op
+            set -l packages zoxide direnv fzf bat eza fd tmux uv rg nvim tpm op gh
             set -l installed 0
             set -l total (count $packages)
             

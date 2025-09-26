@@ -1,0 +1,22 @@
+gui:
+  theme:
+    # Dracula color palette
+    lightTheme: false
+    defaultFgColor: ["#f8f8f2"]
+    activeBorderColor: ["#bd93f9", "bold"]
+    inactiveBorderColor: ["#6272a4"]
+    optionsTextColor: ["#8be9fd"]
+    selectedLineBgColor: ["#44475a"]
+    selectedRangeBgColor: ["#44475a"]
+    cherryPickedCommitBgColor: ["#bd93f9"]
+    cherryPickedCommitFgColor: ["#282a36"]
+    unstagedChangesColor: ["#ff5555"]
+    searchingActiveColor: ["#ffb86c"]
+    stagedChangesColor: ["#50fa7b"]
+    commitAuthorColor: ["#ff79c6"]
+    mergingConflictFgColor: ["#ff5555"]
+    markedBaseCommitFgColor: ["#f1fa8c"]
+    markedBaseCommitBgColor: ["#44475a"]
+  # Optional: uncomment if you use Nerd Fonts v3
+  # nerdFontsVersion: "3"
+

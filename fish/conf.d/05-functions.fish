@@ -19,7 +19,7 @@ set -g CMD_START_TIME 0
 set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
 
 # Blacklist of interactive commands that should not trigger notifications
-set -g CMD_TIMER_BLACKLIST vim nvim vi less more man htop top nano emacs ssh tmux screen git fzf ranger mc mutt weechat irssi node ipython fish bash zsh mysql psql mongo redis-cli claude codex tx v
+set -g CMD_TIMER_BLACKLIST vim nvim vi less more man htop top nano emacs ssh tmux screen git fzf ranger mc mutt weechat irssi node ipython fish bash zsh mysql psql mongo redis-cli claude codex tx v y
 
 function __cmd_timer_start --on-event fish_preexec
     set -g CMD_START_TIME (date +%s)

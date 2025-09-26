@@ -140,6 +140,24 @@ require("lazy").setup({
       vim.keymap.set({ "n", "x" }, "<C-c><C-j>", function() slime_to_pane("{bottom}") end, { desc = "Send to tmux pane of the bottom" })
     end,
   },
+
+  -- Code Autocompletion
+  {
+    'saghen/blink.cmp',
+    version = '1.*',
+    ---@module 'blink.cmp'
+    ---@type blink.cmp.Config
+    opts = {
+      keymap = { preset = 'super-tab' },
+      fuzzy = { implementation = "prefer_rust_with_warning" }
+    },
+    opts_extend = { "sources.default" }
+  },
+  {
+    'Exafunction/windsurf.vim',
+    event = 'BufEnter'
+  },
+
   -- Colorscheme
   { 
     "catppuccin/nvim", 

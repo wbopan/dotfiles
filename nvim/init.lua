@@ -112,6 +112,32 @@ require("lazy").setup({
     },
   },
 
+  -- REPL Interaction
+  {
+    "jpalardy/vim-slime",
+    init = function()
+      vim.g.slime_target = "tmux"
+      vim.g.slime_python_ipython = 1
+      vim.g.slime_dont_ask_default = 1
+    end,
+    config = function()
+      local function slime_to_pane(pane)
+        vim.b.slime_config = { socket_name = "default", target_pane = pane }
+  
+        local m = vim.fn.mode()
+        if m == "v" or m == "V" or m == "\022" then
+  	local keys = vim.api.nvim_replace_termcodes("<Plug>SlimeRegionSend", true, false, true)
+  	vim.api.nvim_feedkeys(keys, "x", false)
+        else
+  	vim.cmd("SlimeSend")
+        end
+      end
+  
+      vim.keymap.set({ "n", "x" }, "<C-c><C-l>", function() slime_to_pane("{right}") end, { desc = "Send to tmux pane of the right" })
+      vim.keymap.set({ "n", "x" }, "<C-c><C-h>", function() slime_to_pane("{left}") end, { desc = "Send to tmux pane of the left" })
+      vim.keymap.set({ "n", "x" }, "<C-c><C-j>", function() slime_to_pane("{bottom}") end, { desc = "Send to tmux pane of the bottom" })
+    end,
+  },
   -- Colorscheme
   { 
     "catppuccin/nvim", 

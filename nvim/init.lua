@@ -29,7 +29,7 @@ vim.opt.splitbelow = true          -- Horizontal splits go below
 vim.opt.splitright = true          -- Vertical splits go right
 vim.opt.cursorline = true          -- Highlight current line
 vim.opt.confirm = true             -- Ask to save before quitting
-vim.opt.showtabline = 0            -- Never show tabline
+vim.opt.showtabline = 0            -- Show tabline when multiple tabs
 vim.opt.autoread = true            -- Auto-reload files changed outside of Vim
 
 -- ============================================================================
@@ -56,82 +56,79 @@ vim.opt.rtp:prepend(lazypath)
 -- ============================================================================
 require("lazy").setup({
   -- File Management
-  "nvim-telescope/telescope.nvim",
-  "nvim-tree/nvim-tree.lua",
-  
+  { 
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      defaults = {
+        file_ignore_patterns = { "node_modules", ".git/" },
+      }
+    },
+  },
+
+  -- File Explorer
+  {
+    'stevearc/oil.nvim',
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {},
+    -- Optional dependencies
+    dependencies = { { "echasnovski/mini.icons", opts = {} } },
+    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    lazy = false,
+  },
+
   -- Editing Enhancements
-  "windwp/nvim-autopairs",
+  {
+    "windwp/nvim-autopairs",
+    opts = {},
+  },
   "tpope/vim-surround",
-  "numToStr/Comment.nvim",
+  {
+    "numToStr/Comment.nvim",
+    opts = {},
+  },
   
   -- Visual Improvements
-  "lukas-reineke/indent-blankline.nvim",
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {},
+  },
   
   -- Quality of Life
-  "folke/which-key.nvim",
-  "nvim-lualine/lualine.nvim",
-  
+  {
+    "folke/which-key.nvim",
+    opts = {},
+  },
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = {
+      options = {
+        theme = 'auto',
+        component_separators = { left = '', right = ''},
+        section_separators = { left = '', right = ''},
+      }
+    },
+  },
+
   -- Colorscheme
-  { "catppuccin/nvim", name = "catppuccin" },
-  
-  -- Dependencies
-  "nvim-lua/plenary.nvim",  -- Required by telescope
-})
-
--- ============================================================================
--- PLUGIN CONFIGURATIONS
--- ============================================================================
-
--- Autopairs
-require('nvim-autopairs').setup({})
-
--- Comment
-require('Comment').setup()
-
--- Catppuccin
-require("catppuccin").setup({
-  flavour = "auto", -- will respect terminal's background
-  transparent_background = true,
-  background = { -- only works when flavour = "auto"
-    light = "latte",
-    dark = "mocha",
-  },
-})
-vim.cmd.colorscheme("catppuccin")
-
--- Indent Blankline
-require("ibl").setup()
-
--- Which Key
-require("which-key").setup()
-
--- Lualine
-require('lualine').setup({
-  options = {
-    theme = 'catppuccin',
-    component_separators = { left = '', right = ''},
-    section_separators = { left = '', right = ''},
+  { 
+    "catppuccin/nvim", 
+    name = "catppuccin",
+    opts = {
+      flavour = "auto", -- will respect terminal's background
+      transparent_background = true,
+      background = { -- only works when flavour = "auto"
+        light = "latte",
+        dark = "mocha",
+      },
+    },
+    config = function(_, opts)
+      require("catppuccin").setup(opts)
+      vim.cmd.colorscheme("catppuccin")
+    end,
   }
-})
-
--- Telescope
-require('telescope').setup({
-  defaults = {
-    file_ignore_patterns = { "node_modules", ".git/" },
-  }
-})
-
--- Nvim-tree
-require("nvim-tree").setup({
-  view = {
-    width = 30,
-  },
-  renderer = {
-    group_empty = true,
-  },
-  filters = {
-    dotfiles = false,
-  },
 })
 
 -- ============================================================================
@@ -141,23 +138,21 @@ require("nvim-tree").setup({
 -- Clear search highlight
 vim.keymap.set("n", "<Esc>", ":noh<CR>", { desc = "Clear search highlight" })
 
--- Buffer navigation
-vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
+-- Quit insert mode with jk
+vim.keymap.set("i", "jk", "<Esc>", { desc = "Quit insert mode" })
 
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right" })
+
+-- Toggle file explorer
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Telescope mappings
 vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
-
--- Nvim-tree
-vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 
 -- Quick save and quit
 vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
@@ -196,20 +191,14 @@ vim.keymap.set('i', '<M-BS>', '<C-w>', { desc = 'Delete word backwards (Alt+Back
 -- AUTO-RELOAD FILES ON EXTERNAL CHANGES
 -- ============================================================================
 
--- Auto-reload files when focus returns to Neovim
-vim.api.nvim_create_autocmd({"FocusGained", "BufEnter", "CursorHold", "CursorHoldI"}, {
-  pattern = "*",
+-- Simple auto-reload: reload files when they change externally, but only if no unsaved changes
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
   callback = function()
-    if vim.fn.mode() ~= "c" then
-      vim.cmd("checktime")
+    -- Skip if in command mode or if buffer has unsaved changes
+    if vim.fn.mode() == "c" or vim.bo.modified then
+      return
     end
-  end
-})
-
--- Notify when file changes are detected
-vim.api.nvim_create_autocmd("FileChangedShellPost", {
-  pattern = "*",
-  callback = function()
-    vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
-  end
+    -- Check and reload files that changed externally
+    vim.cmd("checktime")
+  end,
 })

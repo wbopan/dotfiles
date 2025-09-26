@@ -9,6 +9,7 @@ vim.opt.number = true              -- Show line numbers
 vim.opt.relativenumber = true      -- Relative line numbers
 vim.opt.tabstop = 4                -- Tab width
 vim.opt.shiftwidth = 4             -- Indent width
+vim.opt.softtabstop = 4            -- Insert/delete 4 spaces when pressing <Tab>/<BS>
 vim.opt.expandtab = true           -- Use spaces instead of tabs
 vim.opt.smartindent = true         -- Smart indentation
 vim.opt.wrap = true                -- Enable line wrap
@@ -88,6 +89,7 @@ require("lazy").setup({
     "numToStr/Comment.nvim",
     opts = {},
   },
+
   
   -- Visual Improvements
   {
@@ -126,10 +128,10 @@ require("lazy").setup({
   
         local m = vim.fn.mode()
         if m == "v" or m == "V" or m == "\022" then
-  	local keys = vim.api.nvim_replace_termcodes("<Plug>SlimeRegionSend", true, false, true)
-  	vim.api.nvim_feedkeys(keys, "x", false)
+            local keys = vim.api.nvim_replace_termcodes("<Plug>SlimeRegionSend", true, false, true)
+            vim.api.nvim_feedkeys(keys, "x", false)
         else
-  	vim.cmd("SlimeSend")
+            vim.cmd("SlimeSend")
         end
       end
   

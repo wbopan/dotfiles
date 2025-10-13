@@ -2,42 +2,44 @@
 # Manages environment variables using 1Password secret references
 
 function op-sync --description "Sync environment variables from 1Password to ~/.profile"
-    # Check if op CLI is available
     if not command -v op >/dev/null 2>&1
-        echo "❌ 1Password CLI (op) not found. Install with: fish_deps install op"
+        echo "1Password CLI (op) not found. Install with: fish_deps install op"
         return 1
     end
 
-    # Check if user is signed in, if not, fail silently
+    echo "Checking current 1Password status..."
+    op-status
+
     if not op account get >/dev/null 2>&1
-        return 1
+        echo "Signing in to 1Password..."
+        set -l signin_output (op signin 2>/dev/null)
+        if test $status -ne 0
+            echo "Sign in failed."
+            return 1
+        end
+        eval $signin_output
     end
 
-    # Get the .env file from fish config directory
     set -l env_file "$HOME/.config/fish/.env"
 
-    # Check if .env file exists
     if not test -f "$env_file"
-        echo "❌ Environment file not found: $env_file"
+        echo "Environment file not found: $env_file"
         return 1
     end
 
-    echo "🔄 Syncing secrets from 1Password..."
+    echo "Syncing secrets from 1Password..."
 
-    # Inject secrets using op inject
     set -l injected_content
     if not set injected_content (op inject --in-file "$env_file" 2>/dev/null)
-        echo "❌ Failed to inject secrets from 1Password"
+        echo "Failed to inject secrets from 1Password"
         return 1
     end
 
-    # Prepare the managed section
     set -l managed_section "# BEGIN 1PASSWORD - AUTO MANAGED"
     set managed_section $managed_section "# Generated: "(date)
     set managed_section $managed_section $injected_content
     set managed_section $managed_section "# END 1PASSWORD - AUTO MANAGED"
 
-    # Read existing profile content
     set -l profile_file ~/.profile
     set -l existing_content
     if test -f "$profile_file"
@@ -85,57 +87,43 @@ function op-sync --description "Sync environment variables from 1Password to ~/.
         set new_content $new_content $managed_section
     end
 
-    # Write new profile
     printf "%s\n" $new_content > "$profile_file"
     chmod 600 "$profile_file"
 
-    echo "✅ Successfully synced "(count (string split "\n" "$injected_content"))" environment variables to ~/.profile"
+    echo "Synced "(count (string split "\n" "$injected_content"))" environment variables to ~/.profile"
     
-    # Reload environment variables using our helper function
-    echo "🔄 Loading new environment variables..."
+    echo "Loading new environment variables..."
     _load_profile_env
-    echo "✅ Environment variables loaded successfully"
+    echo "Environment variables loaded successfully"
+
+    echo "Checking 1Password status after sync..."
+    op-status
 end
 
 function op-status --description "Show 1Password integration status"
-    echo "🔍 1Password Integration Status"
-    echo "=============================="
-    
-    # Check op CLI
+    echo "1Password status"
+
     if command -v op >/dev/null 2>&1
-        echo "  ✅ 1Password CLI installed"
-        
-        # Check sign-in status
+        echo "  op CLI: installed"
         if op account get >/dev/null 2>&1
-            set -l account_info (op account get --format=json 2>/dev/null | jq -r '.email // .user_uuid // "Unknown"')
-            echo "  ✅ Signed in as: $account_info"
+            set -l account_info (op account get --format=json 2>/dev/null | jq -r '.email // .user_uuid // "unknown account"')
+            echo "  signed in: yes ($account_info)"
         else
-            echo "  ❌ Not signed in to 1Password"
+            echo "  signed in: no"
         end
     else
-        echo "  ❌ 1Password CLI not installed"
+        echo "  op CLI: not installed"
     end
 
-    # Check .env file
-    set -l env_file "$HOME/.config/fish/.env"
-    if test -f "$env_file"
-        set -l secret_count (grep -c "^export.*=op://" "$env_file" 2>/dev/null || echo "0")
-        echo "  ✅ Environment file found with $secret_count secret references"
-    else
-        echo "  ❌ Environment file not found: $env_file"
-    end
-
-    # Check profile
-    if test -f ~/.profile
-        if grep -q "# BEGIN 1PASSWORD" ~/.profile 2>/dev/null
-            set -l last_sync (grep "# Generated:" ~/.profile 2>/dev/null | tail -n1 | sed 's/# Generated: //')
-            echo "  ✅ Profile has managed secrets (last sync: $last_sync)"
-        else
-            echo "  ⚠️  Profile exists but no managed secrets found"
+    set -l profile_file ~/.profile
+    set -l export_count 0
+    if test -f "$profile_file"
+        set export_count (grep -c "^export" "$profile_file" 2>/dev/null)
+        if test $status -ne 0
+            set export_count 0
         end
-    else
-        echo "  ⚠️  Profile file does not exist"
     end
+    echo "  profile exports: $export_count"
 end
 
 # Auto-sync on first setup
@@ -156,10 +144,10 @@ function _op_auto_sync_check
         return
     end
 
-    echo "🔐 1Password auto-sync: First time setup detected"
-    echo "   📝 Found secret references in .env file"
-    echo "   🚀 Run 'op-sync' to sync your environment variables"
-    echo "   💡 This will happen automatically once you run op-sync for the first time"
+    echo "1Password auto-sync: First time setup detected"
+    echo "   Found secret references in .env file"
+    echo "   Run 'op-sync' to sync your environment variables"
+    echo "   This will happen automatically once you run op-sync for the first time"
 end
 
 # Run auto-sync check on shell startup

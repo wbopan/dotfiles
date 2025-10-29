@@ -77,7 +77,6 @@ YES_MODE=false
 # Default to install all components
 INSTALL_FISH=true
 INSTALL_TMUX=true
-INSTALL_CLAUDE=true
 INSTALL_NVIM=true
 INSTALL_LAZYGIT=true
 SELECTIVE_MODE=false
@@ -119,7 +118,6 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_CLAUDE=false
                 INSTALL_NVIM=false
                 SELECTIVE_MODE=true
             fi
@@ -131,23 +129,10 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_CLAUDE=false
                 INSTALL_NVIM=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_TMUX=true
-            shift
-            ;;
-        --claude)
-            if [ "$SELECTIVE_MODE" = false ]; then
-                # First selective flag - disable all, then enable this one
-                INSTALL_FISH=false
-                INSTALL_TMUX=false
-                INSTALL_CLAUDE=false
-                INSTALL_NVIM=false
-                SELECTIVE_MODE=true
-            fi
-            INSTALL_CLAUDE=true
             shift
             ;;
         --nvim)
@@ -155,7 +140,6 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_CLAUDE=false
                 INSTALL_NVIM=false
                 INSTALL_LAZYGIT=false
                 SELECTIVE_MODE=true
@@ -168,7 +152,6 @@ while [[ $# -gt 0 ]]; do
                 # First selective flag - disable all, then enable this one
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
-                INSTALL_CLAUDE=false
                 INSTALL_NVIM=false
                 INSTALL_LAZYGIT=false
                 SELECTIVE_MODE=true
@@ -184,10 +167,6 @@ while [[ $# -gt 0 ]]; do
             INSTALL_TMUX=false
             shift
             ;;
-        --no-claude)
-            INSTALL_CLAUDE=false
-            shift
-            ;;
         --no-nvim)
             INSTALL_NVIM=false
             shift
@@ -199,7 +178,6 @@ while [[ $# -gt 0 ]]; do
         --all|-a)
             INSTALL_FISH=true
             INSTALL_TMUX=true
-            INSTALL_CLAUDE=true
             INSTALL_NVIM=true
             INSTALL_LAZYGIT=true
             shift
@@ -207,19 +185,17 @@ while [[ $# -gt 0 ]]; do
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "By default, installs all configurations (fish, tmux, claude, nvim, lazygit)."
+            echo "By default, installs all configurations (fish, tmux, nvim, lazygit)."
             echo ""
             echo "Options:"
             echo "  --fish         Install only fish shell configuration"
             echo "  --tmux         Install only tmux configuration"
-            echo "  --claude       Install only Claude custom commands"
             echo "  --nvim         Install only Neovim configuration"
             echo "  --lazygit      Install only LazyGit configuration"
             echo "  --all, -a      Install all configurations (default)"
             echo ""
             echo "  --no-fish      Skip fish shell configuration"
             echo "  --no-tmux      Skip tmux configuration"
-            echo "  --no-claude    Skip Claude custom commands"
             echo "  --no-nvim      Skip Neovim configuration"
             echo "  --no-lazygit   Skip LazyGit configuration"
             echo ""
@@ -230,7 +206,6 @@ while [[ $# -gt 0 ]]; do
             echo "  $0                    # Install everything"
             echo "  $0 --fish --tmux      # Install fish + tmux only"
             echo "  $0 --lazygit          # Install LazyGit only"
-            echo "  $0 --claude           # Install Claude commands only"
             echo "  $0 --yes              # Install everything non-interactively"
             exit 0
             ;;
@@ -272,19 +247,6 @@ fi
 if [ "$INSTALL_TMUX" = true ]; then
     SOURCE_PATHS+=("tmux/.tmux.conf")
     TARGET_PATHS+=("$HOME/.tmux.conf")
-fi
-
-# Add Claude custom commands if requested
-if [ "$INSTALL_CLAUDE" = true ]; then
-    # Auto-discover and add all .md files in claude/commands directory
-    for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
-        if [ -f "$cmd_file" ]; then
-            # Extract just the filename from the full path
-            cmd_filename=$(basename "$cmd_file")
-            SOURCE_PATHS+=("claude/commands/$cmd_filename")
-            TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
-        fi
-    done
 fi
 
 # Add Neovim configuration if requested

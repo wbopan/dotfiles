@@ -66,15 +66,18 @@ if [ -L "$HOME/.config/fish/conf.d" ]; then
     TARGET_PATHS+=("$HOME/.config/fish/conf.d")
 fi
 
-# Auto-discover and add all .md files in claude/commands directory for unlinking
-for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
-    if [ -f "$cmd_file" ]; then
-        # Extract just the filename from the full path
-        cmd_filename=$(basename "$cmd_file")
-        SOURCE_PATHS+=("claude/commands/$cmd_filename")
-        TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
-    fi
-done
+# Keep backward-compatible uninstall for legacy Claude Code (cc) installs
+# If the repo still contains command files, include them; otherwise we'll
+# clean up the target directory later even without source files present.
+if [ -d "$SCRIPT_DIR/claude/commands" ]; then
+    for cmd_file in "$SCRIPT_DIR"/claude/commands/*.md; do
+        if [ -f "$cmd_file" ]; then
+            cmd_filename=$(basename "$cmd_file")
+            SOURCE_PATHS+=("claude/commands/$cmd_filename")
+            TARGET_PATHS+=("$HOME/.claude/commands/$cmd_filename")
+        fi
+    done
+fi
 
 # Add Neovim configuration path
 SOURCE_PATHS+=("nvim/init.lua")
@@ -248,6 +251,31 @@ done
 
 echo ""
 echo "Dotfiles uninstall complete."
+
+# --- Compatibility cleanup for legacy Claude Code (cc) ---
+# Remove any leftover symlinks under ~/.claude/commands even if
+# the source files no longer exist in this repo.
+CLAUDE_CMDS_DIR="$HOME/.claude/commands"
+if [ -d "$CLAUDE_CMDS_DIR" ]; then
+    echo ""
+    echo "Cleaning legacy Claude Code symlinks..."
+    removed_any=false
+    for f in "$CLAUDE_CMDS_DIR"/*; do
+        [ -L "$f" ] || continue
+        rm "$f" && echo "  [OK] Removed symlink: $f" && removed_any=true
+    done
+    # Remove directory if empty after cleanup
+    if [ -z "$(ls -A "$CLAUDE_CMDS_DIR" 2>/dev/null)" ]; then
+        rmdir "$CLAUDE_CMDS_DIR" 2>/dev/null && echo "  [OK] Removed empty directory: $CLAUDE_CMDS_DIR"
+        # Also try to remove parent ~/.claude if now empty
+        CLAUDE_DIR="$HOME/.claude"
+        if [ -d "$CLAUDE_DIR" ] && [ -z "$(ls -A "$CLAUDE_DIR" 2>/dev/null)" ]; then
+            rmdir "$CLAUDE_DIR" 2>/dev/null && echo "  [OK] Removed empty directory: $CLAUDE_DIR"
+        fi
+    elif [ "$removed_any" = false ]; then
+        echo "  [SKIP] No legacy Claude symlinks found."
+    fi
+fi
 
 # Remove devcontainer devcontainer.json if it exists
 DEVCONTAINER_DEFAULT="$HOME/.config/devcontainer/devcontainer.json"

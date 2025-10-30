@@ -19,7 +19,7 @@ set -g CMD_START_TIME 0
 set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
 
 # Blacklist of interactive commands that should not trigger notifications
-set -g CMD_TIMER_BLACKLIST vim nvim vi less more man htop top nano emacs ssh tmux screen git fzf ranger mc mutt weechat irssi node ipython fish bash zsh mysql psql mongo redis-cli claude codex tx v y
+set -g CMD_TIMER_BLACKLIST vim nvim vi less more man htop top nano emacs ssh tmux screen git fzf ranger mc mutt weechat irssi node ipython fish bash zsh mysql psql mongo redis-cli codex tx v y
 
 function __cmd_timer_start --on-event fish_preexec
     set -g CMD_START_TIME (date +%s)
@@ -149,17 +149,6 @@ has devcontainer; and function dcc
     
     if test (count $argv) -eq 0
         run_or_print devcontainer $docker_path $devcontainer_args
-    else if test "$argv[1]" = "claude"
-        # Check if devcontainer is running before executing claude
-        if not is_devcontainer_running
-            if test "$dryrun" = "true"
-                echo "[DRYRUN] Devcontainer not running. Starting it first..."
-            else
-                echo "Devcontainer not running. Starting it first..."
-            end
-            run_or_print devcontainer up $docker_path $devcontainer_args
-        end
-        run_or_print devcontainer exec $docker_path $devcontainer_args claude --dangerously-skip-permissions $argv[2..-1]
     else if contains "$argv[1]" $devcontainer_commands
         # Add git mount only for 'up' command when in a git worktree
         set command_args $devcontainer_args

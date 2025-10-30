@@ -149,15 +149,21 @@ require("lazy").setup({
     ---@type blink.cmp.Config
     opts = {
       keymap = { preset = 'super-tab' },
-      fuzzy = { implementation = "prefer_rust_with_warning" }
+      fuzzy = { implementation = "prefer_rust_with_warning" },
     },
-    opts_extend = { "sources.default" }
   },
   {
-    'Exafunction/windsurf.vim',
-    event = 'BufEnter'
+    "zbirenbaum/copilot.lua",
+    event = "InsertEnter",
+    cmd = "Copilot",
+    dependencies = {
+      {
+        "copilotlsp-nvim/copilot-lsp",
+      },
+    },
+    opts = {}
   },
-
+  
   -- Colorscheme
   { 
     "catppuccin/nvim", 

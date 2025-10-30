@@ -8,6 +8,11 @@ function has
     command -v $argv >/dev/null ^&1
 end
 
+# # Load VSCode shell integration if in VSCode terminal
+# if test "$TERM_PROGRAM" = vscode
+#     source (code --locate-shell-integration-path fish)
+# end
+
 # Load environment variables from .profile using bash
 # Fish cannot directly source POSIX shell scripts, so we use bash to export them
 function _load_profile_env --description "Load environment variables from ~/.profile"
@@ -20,7 +25,7 @@ function _load_profile_env --description "Load environment variables from ~/.pro
                 set -l key $kv[1]
                 set -l value $kv[2]
                 # Skip read-only variables like '_' which cannot be set in Fish
-                if test "$key" != "_"
+                if test "$key" != _
                     # Only set if not already set in Fish to avoid overwriting Fish-specific settings
                     if not set -q $key
                         set -gx $key $value

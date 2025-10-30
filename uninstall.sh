@@ -30,9 +30,6 @@ done
 # Using indexed arrays for better compatibility with older bash versions
 SOURCE_PATHS=(
     "fish/config.fish"
-    # Legacy function files (for backward compatibility)
-    "fish/dcc.fish"
-    "fish/sshtmux.fish"
     "tmux/.tmux.conf"
     "kitty/kitty.conf"
     "kitty/current-theme.conf"
@@ -41,9 +38,6 @@ SOURCE_PATHS=(
 
 TARGET_PATHS=(
     "$HOME/.config/fish/config.fish"
-    # Legacy function files (for backward compatibility)
-    "$HOME/.config/fish/functions/dcc.fish"
-    "$HOME/.config/fish/functions/sshtmux.fish"
     "$HOME/.tmux.conf"
     "$HOME/.config/kitty/kitty.conf"
     "$HOME/.config/kitty/current-theme.conf"

@@ -78,34 +78,8 @@ YES_MODE=false
 INSTALL_FISH=true
 INSTALL_TMUX=true
 INSTALL_NVIM=true
-INSTALL_LAZYGIT=true
 SELECTIVE_MODE=false
 FISH_CONFIGURED=false
-
-# Resolve LazyGit config directory in a cross-platform way
-get_lazygit_config_dir() {
-    # Prefer asking lazygit directly if available
-    if command -v lazygit >/dev/null 2>&1; then
-        local dir
-        dir="$(lazygit -cd 2>/dev/null)"
-        if [ -n "$dir" ]; then
-            echo "$dir"
-            return 0
-        fi
-    fi
-
-    # Fall back to XDG if set
-    if [ -n "$XDG_CONFIG_HOME" ]; then
-        echo "$XDG_CONFIG_HOME/lazygit"
-        return 0
-    fi
-
-    # OS defaults
-    case "$OSTYPE" in
-        darwin*) echo "$HOME/Library/Application Support/lazygit" ;;
-        *)       echo "$HOME/.config/lazygit" ;;
-    esac
-}
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -141,22 +115,9 @@ while [[ $# -gt 0 ]]; do
                 INSTALL_FISH=false
                 INSTALL_TMUX=false
                 INSTALL_NVIM=false
-                INSTALL_LAZYGIT=false
                 SELECTIVE_MODE=true
             fi
             INSTALL_NVIM=true
-            shift
-            ;;
-        --lazygit)
-            if [ "$SELECTIVE_MODE" = false ]; then
-                # First selective flag - disable all, then enable this one
-                INSTALL_FISH=false
-                INSTALL_TMUX=false
-                INSTALL_NVIM=false
-                INSTALL_LAZYGIT=false
-                SELECTIVE_MODE=true
-            fi
-            INSTALL_LAZYGIT=true
             shift
             ;;
         --no-fish)
@@ -171,33 +132,26 @@ while [[ $# -gt 0 ]]; do
             INSTALL_NVIM=false
             shift
             ;;
-        --no-lazygit)
-            INSTALL_LAZYGIT=false
-            shift
-            ;;
         --all|-a)
             INSTALL_FISH=true
             INSTALL_TMUX=true
             INSTALL_NVIM=true
-            INSTALL_LAZYGIT=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "By default, installs all configurations (fish, tmux, nvim, lazygit)."
+            echo "By default, installs all configurations (fish, tmux, nvim)."
             echo ""
             echo "Options:"
             echo "  --fish         Install only fish shell configuration"
             echo "  --tmux         Install only tmux configuration"
             echo "  --nvim         Install only Neovim configuration"
-            echo "  --lazygit      Install only LazyGit configuration"
             echo "  --all, -a      Install all configurations (default)"
             echo ""
             echo "  --no-fish      Skip fish shell configuration"
             echo "  --no-tmux      Skip tmux configuration"
             echo "  --no-nvim      Skip Neovim configuration"
-            echo "  --no-lazygit   Skip LazyGit configuration"
             echo ""
             echo "  --yes, -y      Non-interactive mode (auto-backup existing files)"
             echo "  --help, -h     Show this help message"
@@ -205,7 +159,6 @@ while [[ $# -gt 0 ]]; do
             echo "Examples:"
             echo "  $0                    # Install everything"
             echo "  $0 --fish --tmux      # Install fish + tmux only"
-            echo "  $0 --lazygit          # Install LazyGit only"
             echo "  $0 --yes              # Install everything non-interactively"
             exit 0
             ;;
@@ -264,13 +217,6 @@ fi
 if [ "$INSTALL_NVIM" = true ]; then
     SOURCE_PATHS+=("nvim/init.lua")
     TARGET_PATHS+=("$HOME/.config/nvim/init.lua")
-fi
-
-# Add LazyGit configuration if requested
-if [ "$INSTALL_LAZYGIT" = true ]; then
-    SOURCE_PATHS+=("lazygit/config.yml")
-    LAZYGIT_DIR="$(get_lazygit_config_dir)"
-    TARGET_PATHS+=("$LAZYGIT_DIR/config.yml")
 fi
 
 # Function to create backup and link

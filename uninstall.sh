@@ -77,30 +77,6 @@ fi
 SOURCE_PATHS+=("nvim/init.lua")
 TARGET_PATHS+=("$HOME/.config/nvim/init.lua")
 
-# Helper to resolve LazyGit config directory in a cross-platform way
-get_lazygit_config_dir() {
-    if command -v lazygit >/dev/null 2>&1; then
-        local dir
-        dir="$(lazygit -cd 2>/dev/null)"
-        if [ -n "$dir" ]; then
-            echo "$dir"
-            return 0
-        fi
-    fi
-    if [ -n "$XDG_CONFIG_HOME" ]; then
-        echo "$XDG_CONFIG_HOME/lazygit"
-        return 0
-    fi
-    case "$OSTYPE" in
-        darwin*) echo "$HOME/Library/Application Support/lazygit" ;;
-        *)       echo "$HOME/.config/lazygit" ;;
-    esac
-}
-
-# Add LazyGit configuration path (use resolved directory)
-SOURCE_PATHS+=("lazygit/config.yml")
-TARGET_PATHS+=("$(get_lazygit_config_dir)/config.yml")
-
 # Function to find the most recent backup file
 find_latest_backup() {
     local target=$1

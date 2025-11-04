@@ -3,7 +3,7 @@
 
 function op-sync --description "Sync environment variables from 1Password to ~/.profile"
     if not command -v op >/dev/null 2>&1
-        echo "1Password CLI (op) not found. Install with: fish_deps install op"
+        echo "1Password CLI (op) not found. Install via your package manager (e.g. 'brew install 1password-cli')."
         return 1
     end
 
@@ -106,8 +106,13 @@ function op-status --description "Show 1Password integration status"
     if command -v op >/dev/null 2>&1
         echo "  op CLI: installed"
         if op account get >/dev/null 2>&1
-            set -l account_info (op account get --format=json 2>/dev/null | jq -r '.email // .user_uuid // "unknown account"')
-            echo "  signed in: yes ($account_info)"
+            if command -v jq >/dev/null 2>&1
+                set -l account_info (op account get --format=json 2>/dev/null | jq -r '.email // .user_uuid // "unknown account"')
+                echo "  signed in: yes ($account_info)"
+            else
+                echo "  signed in: yes"
+                echo "  (install jq for detailed account info)"
+            end
         else
             echo "  signed in: no"
         end

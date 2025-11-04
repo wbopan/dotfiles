@@ -225,8 +225,8 @@ TARGET_PATHS=()
 # Add fish configuration if requested
 if [ "$INSTALL_FISH" = true ]; then
     SOURCE_PATHS+=("fish/config.fish")
-    TARGET_PATHS+=("$HOME/.config/fish/config.fish")
-    
+   TARGET_PATHS+=("$HOME/.config/fish/config.fish")
+   
     # Link .env file for 1Password integration
     SOURCE_PATHS+=(".env")
     TARGET_PATHS+=("$HOME/.config/fish/.env")
@@ -240,6 +240,17 @@ if [ "$INSTALL_FISH" = true ]; then
             TARGET_PATHS+=("$HOME/.config/fish/conf.d/$conf_filename")
         fi
     done
+
+    # Auto-discover and add all autoloaded functions
+    if [ -d "$SCRIPT_DIR/fish/functions" ]; then
+        for fn_file in "$SCRIPT_DIR"/fish/functions/*.fish; do
+            if [ -f "$fn_file" ]; then
+                fn_filename=$(basename "$fn_file")
+                SOURCE_PATHS+=("fish/functions/$fn_filename")
+                TARGET_PATHS+=("$HOME/.config/fish/functions/$fn_filename")
+            fi
+        done
+    fi
 fi
 
 
@@ -394,21 +405,19 @@ if [ "$FISH_CONFIGURED" = true ] && command -v fish &> /dev/null; then
     echo ""
 fi
 
-# Run fish_deps health check if fish is configured
+# Display dependency overview if fish is configured
 if [ "$FISH_CONFIGURED" = true ] && command -v fish &> /dev/null; then
-    print_header "Dependency Health Check:"
-    if fish -c "fish_deps health" 2>/dev/null; then
-        echo ""
-        print_info "Use ${CYAN}fish_deps install <package>${NC} to install missing dependencies"
+    print_header "Dependencies:"
+    if fish -c "fish_deps" 2>/dev/null; then
+        print_info "Run ${CYAN}fish_deps${NC} anytime to re-check dependency status."
     else
-        print_info "Fish configuration not fully loaded. Run ${CYAN}fish_deps health${NC} manually to check dependencies"
+        print_info "Fish configuration not fully loaded. Open a new fish session and run ${CYAN}fish_deps${NC} to review dependencies."
     fi
 else
     print_header "Dependencies:"
-    print_info "After fish configuration is active, run ${CYAN}fish_deps health${NC} to check all dependencies"
-    print_info "Use ${CYAN}fish_deps install <package>${NC} to install missing packages"
-    print_info "Use ${CYAN}op-sync${NC} to sync 1Password secrets to .profile file"
+    print_info "After fish configuration is active, run ${CYAN}fish_deps${NC} to review dependencies."
 fi
+print_info "Use ${CYAN}op-sync${NC} to sync 1Password secrets to your ~/.profile when ready."
 
 echo ""
 print_header "All done!"

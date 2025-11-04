@@ -1,19 +1,3 @@
-# Custom functions
-
-# General notification function using ntfy
-function notify
-    set -l title $argv[1]
-    set -l message $argv[2]
-    
-    # Send notification with proper title and message separation
-    # Enable Markdown formatting for proper line breaks
-    curl -s \
-        -H "Title: $title" \
-        -H "X-Markdown: yes" \
-        -d "$message" \
-        ntfy.sh/wenbo-R2osKWmlKv7gQh2m > /dev/null 2>&1
-end
-
 # Command timing for long-running notifications
 set -g CMD_START_TIME 0
 set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
@@ -63,28 +47,5 @@ function __cmd_timer_end --on-event fish_postexec
         end
         
         set -g CMD_START_TIME 0
-    end
-end
-
-function y
-	set tmp (mktemp -t "yazi-cwd.XXXXXX")
-	yazi $argv --cwd-file="$tmp"
-	if read -z cwd < "$tmp"; and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
-		cd -- "$cwd"
-	end
-	rm -f -- "$tmp"
-end
-
-# tx function - tmux session management
-function tx
-    if test -n "$TMUX"
-        return 0
-    end
-
-    if test (count $argv) -eq 0
-        tmux new -As (basename $PWD)
-    else
-        set window_name "run_$argv[1]_"(random)
-        tmux new-session -s $window_name "$argv; $SHELL"
     end
 end

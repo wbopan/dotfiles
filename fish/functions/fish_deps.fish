@@ -1,4 +1,4 @@
-# Dependency status reporter for fish shell
+# Dependency status reporter with helper commands
 
 function _fish_deps_check_package
     set -l package $argv[1]

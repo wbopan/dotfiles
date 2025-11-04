@@ -58,13 +58,8 @@ function prune_vsct_tmux --description "Prune detached vsct* tmux sessions witho
         if test $has_active -eq 0
             tmux kill-session -t "$name"
             if test $status -eq 0
-                echo "Pruned tmux session $name"
                 set killed (math $killed + 1)
             end
         end
-    end
-
-    if test $killed -eq 0
-        echo "No vsct sessions pruned"
     end
 end

@@ -1,10 +1,6 @@
 # Core utilities and settings
 set -U fish_greeting ""
 
-function has
-    command -v $argv >/dev/null ^&1
-end
-
 # # Load VSCode shell integration if in VSCode terminal
 # if test "$TERM_PROGRAM" = vscode
 #     source (code --locate-shell-integration-path fish)

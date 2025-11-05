@@ -2,8 +2,8 @@
 set -g CMD_START_TIME 0
 set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
 
-# Blacklist of interactive commands that should not trigger notifications
-set -g CMD_TIMER_BLACKLIST vim nvim vi less more man htop top nano emacs ssh tmux screen git fzf ranger mc mutt weechat irssi node ipython fish bash zsh mysql psql mongo redis-cli codex tx v y
+# Whitelist of long-running commands that should trigger notifications
+set -g CMD_TIMER_WHITELIST brew npm yarn pnpm pip pip3 poetry bundle rails docker docker-compose kubectl helm terraform ansible-playbook make cmake ninja cargo go gradle mvn pytest tox rake rsync uv python python3 torchrun accelerate deepspeed huggingface-cli conda mamba pipx sbatch srun
 
 function __cmd_timer_start --on-event fish_preexec
     set -g CMD_START_TIME (date +%s)
@@ -24,19 +24,19 @@ function __cmd_timer_end --on-event fish_postexec
             set -l seconds (math "$duration % 60")
             set -l command $argv[1]
             
-            # Extract the first word (command name) to check against blacklist
+            # Extract the first word (command name) to check against whitelist
             set -l cmd_name (string split ' ' $command)[1]
             
-            # Skip notification if command starts with a blacklisted word
-            set -l is_blacklisted false
-            for blacklisted in $CMD_TIMER_BLACKLIST
-                if string match -q "$blacklisted*" $cmd_name
-                    set is_blacklisted true
+            # Only notify when the command starts with a whitelisted word
+            set -l is_whitelisted false
+            for whitelisted in $CMD_TIMER_WHITELIST
+                if string match -q "$whitelisted*" $cmd_name
+                    set is_whitelisted true
                     break
                 end
             end
-            
-            if not $is_blacklisted
+
+            if $is_whitelisted
                 # Truncate command if too long for notification
                 if test (string length $command) -gt 80
                     set command (string sub -l 77 $command)"..."

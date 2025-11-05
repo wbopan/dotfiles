@@ -3,7 +3,7 @@ set -g CMD_START_TIME 0
 set -g CMD_NOTIFICATION_THRESHOLD 180  # 3 minutes in seconds
 
 # Whitelist of long-running commands that should trigger notifications
-set -g CMD_TIMER_WHITELIST brew npm yarn pnpm pip pip3 poetry bundle rails docker docker-compose kubectl helm terraform ansible-playbook make cmake ninja cargo go gradle mvn pytest tox rake rsync uv python python3 torchrun accelerate deepspeed huggingface-cli conda mamba pipx sbatch srun
+set -g CMD_TIMER_WHITELIST brew npm yarn pnpm pip pip3 poetry bundle rails docker docker-compose kubectl helm terraform ansible-playbook make cmake ninja cargo go gradle mvn pytest tox rake rsync uv python python3 torchrun accelerate deepspeed huggingface-cli conda mamba pipx sbatch srun sleep
 
 function __cmd_timer_start --on-event fish_preexec
     set -g CMD_START_TIME (date +%s)

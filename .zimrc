@@ -20,6 +20,8 @@ zmodule exa
 zmodule direnv
 # Sets up fzf shell integration (requires fzf >= 0.48.0).
 zmodule fzf
+# Node Version Manager for Zsh.
+zmodule lukechilds/zsh-nvm
 
 #
 # Prompt

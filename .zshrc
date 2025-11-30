@@ -42,6 +42,7 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 # Zim Framework
 #
 
+[[ -f ~/.profile ]] && source ~/.profile
 ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
 
 # Download zimfw plugin manager if missing.
@@ -111,13 +112,6 @@ if has zoxide; then
     eval "$(zoxide init zsh --cmd cd)"
 fi
 
-if has uv; then
-    eval "$(uv generate-shell-completion zsh)"
-fi
-
-if has uvx; then
-    eval "$(uvx --generate-shell-completion zsh)"
-fi
 
 if has vim; then
     export EDITOR=vim
@@ -129,10 +123,6 @@ fi
 
 if has batcat; then
     alias bat='batcat'
-fi
-
-if has codex; then
-    eval "$(codex completion zsh)"
 fi
 
 #

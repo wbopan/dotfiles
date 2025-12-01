@@ -7,12 +7,15 @@
 #
 
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=50000
+SAVEHIST=50000
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_SPACE
 setopt SHARE_HISTORY
 setopt APPEND_HISTORY
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
+setopt HIST_EXPIRE_DUPS_FIRST
 
 #
 # Input/output
@@ -37,6 +40,13 @@ ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
 # Set what highlighters will be used.
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+
+#
+# zsh-nvm
+#
+
+# Lazy load nvm to speed up shell startup.
+export NVM_LAZY_LOAD=true
 
 #
 # Zim Framework
@@ -102,7 +112,7 @@ has cursor && alias c="cursor"
 has open && alias o="open"
 has nvim && alias vim="nvim"
 has nvim && alias v="nvim"
-has docker-compose && alias dc="docker-compose"
+has docker && alias dc="docker compose"
 
 #
 # Plugin Integrations
@@ -113,13 +123,7 @@ if has zoxide; then
 fi
 
 
-if has vim; then
-    export EDITOR=vim
-fi
-
-if has nvim; then
-    export EDITOR=nvim
-fi
+export EDITOR=${commands[nvim]:-${commands[vim]:-vi}}
 
 if has batcat; then
     alias bat='batcat'
@@ -288,7 +292,7 @@ if has nc; then
     proxy_port=""
 
     for port in "${candidate_ports[@]}"; do
-        if nc -z -w 1 localhost "$port" >/dev/null 2>&1; then
+        if nc -z -w 0.1 localhost "$port" >/dev/null 2>&1; then
             proxy_port="$port"
             break
         fi
@@ -299,6 +303,8 @@ if has nc; then
         export ALL_PROXY="http://127.0.0.1:$proxy_port"
         export HTTP_PROXY="$ALL_PROXY"
         export HTTPS_PROXY="$ALL_PROXY"
+        export NO_PROXY="localhost,127.0.0.1,::1"
+        export no_proxy="$NO_PROXY"
     fi
 fi
 

@@ -22,6 +22,10 @@ zmodule direnv
 zmodule fzf
 # Node Version Manager for Zsh.
 zmodule lukechilds/zsh-nvm
+# Provides archive extraction helpers.
+zmodule archive
+# Provides ssh-agent integration.
+zmodule ssh
 
 #
 # Prompt

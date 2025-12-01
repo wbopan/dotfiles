@@ -366,7 +366,7 @@ prune_vsct_tmux() {
 
 # Run on interactive shell startup
 if [[ -o interactive ]]; then
-    prune_vsct_tmux 2>/dev/null
+    prune_vsct_tmux >/dev/null 2>&1
 fi
 
 #

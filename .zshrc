@@ -292,7 +292,7 @@ if has nc; then
     proxy_port=""
 
     for port in "${candidate_ports[@]}"; do
-        if nc -z -w 0.1 localhost "$port" >/dev/null 2>&1; then
+        if nc -z -w 1 localhost "$port" >/dev/null 2>&1; then
             proxy_port="$port"
             break
         fi

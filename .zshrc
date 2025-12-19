@@ -287,9 +287,10 @@ precmd_functions+=(__cmd_timer_end)
 # Proxy Detection
 #
 
-if has nc; then
-    candidate_ports=(7899 7890 7891 17890)
-    proxy_port=""
+# Proxy detection (async to avoid blocking shell startup)
+__setup_proxy() {
+    local candidate_ports=(7899 7890 7891 17890)
+    local proxy_port=""
 
     for port in "${candidate_ports[@]}"; do
         if nc -z -w 1 localhost "$port" >/dev/null 2>&1; then
@@ -301,6 +302,18 @@ if has nc; then
     if [[ -n "$proxy_port" ]]; then
         export PROXY_PORT="$proxy_port"
         export ALL_PROXY="http://127.0.0.1:$proxy_port"
+        export HTTP_PROXY="$ALL_PROXY"
+        export HTTPS_PROXY="$ALL_PROXY"
+        export NO_PROXY="localhost,127.0.0.1,::1"
+        export no_proxy="$NO_PROXY"
+    fi
+}
+
+# Check common proxy port first (fast path), then async check others if needed
+if has nc; then
+    if nc -z -w 0 localhost 7890 >/dev/null 2>&1; then
+        export PROXY_PORT="7890"
+        export ALL_PROXY="http://127.0.0.1:7890"
         export HTTP_PROXY="$ALL_PROXY"
         export HTTPS_PROXY="$ALL_PROXY"
         export NO_PROXY="localhost,127.0.0.1,::1"
@@ -364,9 +377,9 @@ prune_vsct_tmux() {
     done <<< "$sessions"
 }
 
-# Run on interactive shell startup
+# Run on interactive shell startup (async to avoid blocking)
 if [[ -o interactive ]]; then
-    prune_vsct_tmux >/dev/null 2>&1
+    (prune_vsct_tmux >/dev/null 2>&1 &)
 fi
 
 #
@@ -411,4 +424,46 @@ health() {
             printf "  [ ] %s  ->  %s\n" "$name" "$install"
         fi
     done
+}
+
+#
+# Ghostty Tab Commands
+#
+
+# Execute pending command on shell startup (used by ghostty-tab function)
+if [[ -f /tmp/.ghostty_cmd ]]; then
+    local __ghostty_cmd
+    __ghostty_cmd=$(</tmp/.ghostty_cmd)
+    rm -f /tmp/.ghostty_cmd
+    eval "$__ghostty_cmd"
+fi
+
+# Open a new Ghostty tab with an optional command
+# Usage: ghostty-tab "command"           # Opens tab in ~, runs command
+#        ghostty-tab "command" ~/dir     # Opens tab in ~/dir, runs command
+#        ghostty-tab "" ~/dir            # Opens tab in ~/dir, no command
+ghostty-tab() {
+    local cmd="$1"
+    local dir="${2:-$HOME}"
+
+    if [[ -n "$cmd" ]]; then
+        printf '%s' "$cmd" > /tmp/.ghostty_cmd
+    fi
+
+    open -a Ghostty "$dir"
+}
+
+# Open Claude Code in a new Ghostty tab
+# Usage: ghostty-claude              # Opens claude in ~/Repos/workspace
+#        ghostty-claude "fix the bug" # Opens claude with initial query
+ghostty-claude() {
+    local query="$1"
+    local cmd='clear && claude --dangerously-skip-permissions'
+
+    if [[ -n "$query" ]]; then
+        cmd+=" ${(qq)query}"
+    fi
+
+    cmd+=' && exit'
+    ghostty-tab "$cmd" ~/Repos/workspace
 }

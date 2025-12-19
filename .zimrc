@@ -18,9 +18,7 @@ zmodule utility
 zmodule exa
 # Sets up direnv shell integration.
 zmodule direnv
-# Sets up fzf shell integration (requires fzf >= 0.48.0).
-zmodule fzf
-# Node Version Manager for Zsh.
+# Node Version Manager for Zsh (lazy-loaded for performance).
 zmodule lukechilds/zsh-nvm
 # Provides archive extraction helpers.
 zmodule archive
@@ -39,13 +37,16 @@ zmodule git-info
 zmodule sindresorhus/pure --source async.zsh --source pure.zsh
 
 #
-# Completion
+# Completion (MUST come before fzf to avoid double compinit)
 #
 
 # Additional completion definitions for Zsh.
 zmodule zsh-users/zsh-completions --fpath src
 # Enables and configures smart and extensive tab completion.
 zmodule completion
+# Sets up fzf shell integration (requires fzf >= 0.48.0).
+# NOTE: fzf must come AFTER completion module to avoid double compinit
+zmodule fzf
 
 #
 # Modules that must be initialized last

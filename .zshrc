@@ -119,7 +119,7 @@ has docker && alias dc="docker compose"
 #
 
 if has zoxide; then
-    eval "$(zoxide init zsh --cmd cd)"
+    eval "$(zoxide init zsh --cmd z)"
 fi
 
 

@@ -21,5 +21,18 @@
     ],
     "defaultMode": "default"
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\e]777;notify;Claude Code;Waiting for Your Input\\e\\\\' > /dev/tty"
+          }
+        ]
+      }
+    ]
+  }
 }

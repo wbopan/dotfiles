@@ -21,5 +21,6 @@ unlink "$DIR/init.lua"             ~/.config/nvim/init.lua
 unlink "$DIR/.zshrc"               ~/.zshrc
 unlink "$DIR/.zimrc"               ~/.zimrc
 unlink "$DIR/claude_settings.json" ~/.claude/settings.json
+unlink "$DIR/lazygit.yml"          ~/Library/Application\ Support/lazygit/config.yml
 
 echo "Done!"

@@ -6,6 +6,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 # Ensure directories exist
 mkdir -p ~/.config/nvim
 mkdir -p ~/.claude
+mkdir -p ~/Library/Application\ Support/lazygit
 
 # Backup existing file (if not a symlink) and create symlink
 link() {
@@ -23,5 +24,6 @@ link "$DIR/init.lua"             ~/.config/nvim/init.lua
 link "$DIR/.zshrc"               ~/.zshrc
 link "$DIR/.zimrc"               ~/.zimrc
 link "$DIR/claude_settings.json" ~/.claude/settings.json
+link "$DIR/lazygit.yml"          ~/Library/Application\ Support/lazygit/config.yml
 
 echo "Done!"

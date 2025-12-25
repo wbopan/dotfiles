@@ -93,6 +93,7 @@ require("lazy").setup({
     config = function()
       require("frecency").setup({
         db_safe_mode = false, -- Auto-clean stale entries without prompting
+        default_workspace = "CWD", -- Show all project files, frecent ones ranked higher
       })
       require("telescope").load_extension("frecency")
     end,

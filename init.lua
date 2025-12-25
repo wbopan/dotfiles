@@ -91,6 +91,9 @@ require("lazy").setup({
     "nvim-telescope/telescope-frecency.nvim",
     version = "*",
     config = function()
+      require("frecency").setup({
+        db_safe_mode = false, -- Auto-clean stale entries without prompting
+      })
       require("telescope").load_extension("frecency")
     end,
   },

@@ -112,6 +112,7 @@ has cursor && alias c="cursor"
 has open && alias o="open"
 has nvim && alias vim="nvim"
 has nvim && alias v="nvim"
+has lazygit && alias lg="lazygit"
 has docker && alias dc="docker compose"
 
 # Claude Code with terminal title

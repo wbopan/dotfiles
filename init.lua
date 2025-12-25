@@ -21,7 +21,7 @@ vim.opt.scrolloff = 8              -- Keep 8 lines visible when scrolling
 vim.opt.signcolumn = "yes"         -- Always show sign column
 vim.opt.updatetime = 50            -- Faster completion
 vim.opt.clipboard = "unnamedplus"  -- Use system clipboard
-vim.opt.completeopt = "menu,menuone,noselect"
+vim.opt.completeopt = "menu,menuone,noselect,fuzzy"  -- fuzzy matching (0.11+)
 vim.opt.ignorecase = true          -- Case insensitive search
 vim.opt.smartcase = true           -- Override ignorecase if search contains capitals
 vim.opt.hlsearch = true            -- Highlight search results
@@ -30,8 +30,18 @@ vim.opt.splitbelow = true          -- Horizontal splits go below
 vim.opt.splitright = true          -- Vertical splits go right
 vim.opt.cursorline = true          -- Highlight current line
 vim.opt.confirm = true             -- Ask to save before quitting
-vim.opt.showtabline = 0            -- Show tabline when multiple tabs
 vim.opt.autoread = true            -- Auto-reload files changed outside of Vim
+vim.o.winborder = "rounded"        -- Default border for floating windows (0.11+)
+vim.o.title = true                 -- Enable window title
+vim.o.titlestring = "%{&buftype == 'terminal' ? b:term_title : expand('%:t') . ' - NVIM'}"
+
+-- Diagnostics configuration (0.11+: virtual_text is opt-in)
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+})
 
 -- ============================================================================
 -- LEADER KEY
@@ -43,7 +53,7 @@ vim.g.maplocalleader = " "
 -- BOOTSTRAP LAZY.NVIM
 -- ============================================================================
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git", "clone", "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
@@ -57,14 +67,32 @@ vim.opt.rtp:prepend(lazypath)
 -- ============================================================================
 require("lazy").setup({
   -- File Management
-  { 
+  {
     "nvim-telescope/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       defaults = {
         file_ignore_patterns = { "node_modules", ".git/" },
-      }
+        path_display = {
+          "filename_first",  -- Show filename before path
+        },
+        -- Smart path display for duplicate filenames
+        dynamic_preview_title = true,
+      },
+      pickers = {
+        find_files = {
+          -- Show parent directory for context
+          path_display = { "smart" },
+        },
+      },
     },
+  },
+  {
+    "nvim-telescope/telescope-frecency.nvim",
+    version = "*",
+    config = function()
+      require("telescope").load_extension("frecency")
+    end,
   },
 
   -- File Explorer
@@ -91,13 +119,6 @@ require("lazy").setup({
   },
 
   
-  -- Visual Improvements
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    opts = {},
-  },
-  
   -- Quality of Life
   {
     "folke/which-key.nvim",
@@ -112,33 +133,6 @@ require("lazy").setup({
         section_separators = { left = '', right = ''},
       }
     },
-  },
-
-  -- REPL Interaction
-  {
-    "jpalardy/vim-slime",
-    init = function()
-      vim.g.slime_target = "tmux"
-      vim.g.slime_python_ipython = 1
-      vim.g.slime_dont_ask_default = 1
-    end,
-    config = function()
-      local function slime_to_pane(pane)
-        vim.b.slime_config = { socket_name = "default", target_pane = pane }
-  
-        local m = vim.fn.mode()
-        if m == "v" or m == "V" or m == "\022" then
-            local keys = vim.api.nvim_replace_termcodes("<Plug>SlimeRegionSend", true, false, true)
-            vim.api.nvim_feedkeys(keys, "x", false)
-        else
-            vim.cmd("SlimeSend")
-        end
-      end
-  
-      vim.keymap.set({ "n", "x" }, "<C-c><C-l>", function() slime_to_pane("{right}") end, { desc = "Send to tmux pane of the right" })
-      vim.keymap.set({ "n", "x" }, "<C-c><C-h>", function() slime_to_pane("{left}") end, { desc = "Send to tmux pane of the left" })
-      vim.keymap.set({ "n", "x" }, "<C-c><C-j>", function() slime_to_pane("{bottom}") end, { desc = "Send to tmux pane of the bottom" })
-    end,
   },
 
   -- Code Autocompletion
@@ -165,8 +159,8 @@ require("lazy").setup({
   },
   
   -- Colorscheme
-  { 
-    "catppuccin/nvim", 
+  {
+    "catppuccin/nvim",
     name = "catppuccin",
     opts = {
       flavour = "auto", -- will respect terminal's background
@@ -175,13 +169,37 @@ require("lazy").setup({
         light = "latte",
         dark = "mocha",
       },
+      -- Boost contrast for better readability with transparent backgrounds
+      styles = {
+        comments = { "italic" },
+        conditionals = { "bold" },
+        keywords = { "bold" },
+        functions = { "bold" },
+      },
+      color_overrides = {
+        mocha = {
+          -- Brighten text colors for better contrast
+          text = "#e0e0e0",      -- Lighter main text (was #cdd6f4)
+          subtext1 = "#c5c5c5",  -- Lighter subtext
+          subtext0 = "#a8a8a8",  -- Lighter secondary text
+        },
+      },
+      integrations = {
+        native_lsp = { enabled = true },
+        telescope = { enabled = true },
+        which_key = true,
+      },
     },
     config = function(_, opts)
       require("catppuccin").setup(opts)
       vim.cmd.colorscheme("catppuccin")
     end,
-  }
+  },
+
 })
+
+-- Terminal keymap (exit terminal mode with jk)
+vim.keymap.set("t", "jk", "<C-\\><C-n>", { desc = "Quit terminal mode" })
 
 -- ============================================================================
 -- KEY MAPPINGS
@@ -205,6 +223,7 @@ vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Fin
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+vim.keymap.set("n", "<leader>fr", "<cmd>Telescope frecency<CR>", { desc = "Frecency (recent files)" })
 
 -- Quick save and quit
 vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
@@ -218,6 +237,16 @@ vim.keymap.set("v", "p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set("n", "<leader>cp", ":let @+=expand('%:p')<CR>", { desc = "Copy absolute file path" })
 vim.keymap.set("n", "<leader>cc", ":let @+=expand('%')<CR>", { desc = "Copy relative file path" })
 vim.keymap.set("n", "<leader>cd", ":let @+=expand('%:p:h')<CR>", { desc = "Copy directory path" })
+
+-- ============================================================================
+-- TERMINAL AUTO-INSERT MODE
+-- ============================================================================
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    vim.cmd("startinsert")
+  end,
+})
 
 -- ============================================================================
 -- MACOS/EMACS-STYLE INSERT MODE NAVIGATION

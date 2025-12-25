@@ -21,7 +21,6 @@
     ],
     "defaultMode": "default"
   },
-  "alwaysThinkingEnabled": true,
   "hooks": {
     "Stop": [
       {
@@ -34,5 +33,9 @@
         ]
       }
     ]
+  },
+  "alwaysThinkingEnabled": true,
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
   }
 }

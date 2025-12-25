@@ -114,6 +114,13 @@ has nvim && alias vim="nvim"
 has nvim && alias v="nvim"
 has docker && alias dc="docker compose"
 
+# Claude Code with terminal title
+cc() {
+    clear
+    printf '\e]0;✳ New Claude in %s\a' "${PWD##*/}"
+    claude --dangerously-skip-permissions "$@"
+}
+
 #
 # Plugin Integrations
 #
@@ -287,38 +294,18 @@ precmd_functions+=(__cmd_timer_end)
 # Proxy Detection
 #
 
-# Proxy detection (async to avoid blocking shell startup)
-__setup_proxy() {
-    local candidate_ports=(7899 7890 7891 17890)
-    local proxy_port=""
-
-    for port in "${candidate_ports[@]}"; do
-        if nc -z -w 1 localhost "$port" >/dev/null 2>&1; then
-            proxy_port="$port"
+if has nc; then
+    for port in 7899 7890 7891 17890; do
+        if nc -z -w 2 localhost "$port" >/dev/null 2>&1; then
+            export PROXY_PORT="$port"
+            export ALL_PROXY="http://127.0.0.1:$port"
+            export HTTP_PROXY="$ALL_PROXY"
+            export HTTPS_PROXY="$ALL_PROXY"
+            export NO_PROXY="localhost,127.0.0.1,::1"
+            export no_proxy="$NO_PROXY"
             break
         fi
     done
-
-    if [[ -n "$proxy_port" ]]; then
-        export PROXY_PORT="$proxy_port"
-        export ALL_PROXY="http://127.0.0.1:$proxy_port"
-        export HTTP_PROXY="$ALL_PROXY"
-        export HTTPS_PROXY="$ALL_PROXY"
-        export NO_PROXY="localhost,127.0.0.1,::1"
-        export no_proxy="$NO_PROXY"
-    fi
-}
-
-# Check common proxy port first (fast path), then async check others if needed
-if has nc; then
-    if nc -z -w 0 localhost 7890 >/dev/null 2>&1; then
-        export PROXY_PORT="7890"
-        export ALL_PROXY="http://127.0.0.1:7890"
-        export HTTP_PROXY="$ALL_PROXY"
-        export HTTPS_PROXY="$ALL_PROXY"
-        export NO_PROXY="localhost,127.0.0.1,::1"
-        export no_proxy="$NO_PROXY"
-    fi
 fi
 
 #

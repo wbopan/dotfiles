@@ -112,7 +112,8 @@ has cursor && alias c="cursor"
 has open && alias o="open"
 has nvim && alias vim="nvim"
 has nvim && alias v="nvim"
-has nvim && alias vf='nvim -c "Telescope frecency"'
+has nvim && alias vf='nvim -c "Telescope frecency workspace=CWD"'
+has nvim && alias vr='nvim -c "Telescope frecency"'
 has lazygit && alias lg="lazygit"
 has docker && alias dc="docker compose"
 

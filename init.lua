@@ -93,7 +93,6 @@ require("lazy").setup({
     config = function()
       require("frecency").setup({
         db_safe_mode = false, -- Auto-clean stale entries without prompting
-        default_workspace = "CWD", -- Show all project files, frecent ones ranked higher
       })
       require("telescope").load_extension("frecency")
     end,
@@ -223,11 +222,11 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right" })
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Telescope mappings
-vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+vim.keymap.set("n", "<leader>ff", "<cmd>Telescope frecency workspace=CWD<CR>", { desc = "Find files (project)" })
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
-vim.keymap.set("n", "<leader>fr", "<cmd>Telescope frecency<CR>", { desc = "Frecency (recent files)" })
+vim.keymap.set("n", "<leader>fr", "<cmd>Telescope frecency<CR>", { desc = "Frecency (global)" })
 
 -- Quick save and quit
 vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })

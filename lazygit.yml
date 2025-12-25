@@ -1,10 +1,10 @@
-# lazygit 配置文件
+# lazygit config
 
 gui:
-  showFileTree: true # 文件树形显示
-  showRandomTip: false # 关闭启动提示
-  showCommandLog: false # 隐藏底部命令日志
-  nerdFontsVersion: "3" # 如果你用 Nerd Font 可以显示图标
+  showFileTree: true # Show files in tree view
+  showRandomTip: false # Disable startup tips
+  showCommandLog: false # Hide command log at bottom
+  nerdFontsVersion: "3" # Enable Nerd Font icons
 git:
-  pagers:
-    - useConfig: true # 使用 git 的 pager 配置（如 delta）
+  paging:
+    useConfig: true # Use git's pager config (e.g., delta)

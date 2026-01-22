@@ -1,10 +1,13 @@
 # lazygit config
 
+os:
+  edit: 'nvim {{filename}}'
+  editAtLine: 'nvim +{{line}} {{filename}}'
 gui:
   showFileTree: true # Show files in tree view
   showRandomTip: false # Disable startup tips
   showCommandLog: false # Hide command log at bottom
   nerdFontsVersion: "3" # Enable Nerd Font icons
 git:
-  paging:
-    useConfig: true # Use git's pager config (e.g., delta)
+  pagers:
+    - useConfig: true # Use git's pager config (e.g., delta)

@@ -129,7 +129,7 @@ cc() {
 #
 
 if has zoxide; then
-    eval "$(zoxide init zsh --cmd z)"
+    eval "$(zoxide init zsh --cmd cd)"
 fi
 
 
@@ -457,3 +457,6 @@ ghostty-claude() {
     cmd+=' && exit'
     ghostty-tab "$cmd" ~/Repos/workspace
 }
+
+# Added by Hugging Face CLI installer
+export PATH="/Users/panwenbo/.local/bin:$PATH"

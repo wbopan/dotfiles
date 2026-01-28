@@ -263,9 +263,42 @@ vim.keymap.set('i', '<C-e>', '<C-o>$', { desc = 'Move to end of line' })
 vim.keymap.set('i', '<M-Left>', '<C-o>b', { desc = 'Move back one word' })
 vim.keymap.set('i', '<M-Right>', '<C-o>w', { desc = 'Move forward one word' })
 
--- Word navigation with Cmd keys (if terminal supports it)
+-- ============================================================================
+-- MACOS CMD KEY SHORTCUTS (for GUI terminals like Ghostty/Kitty)
+-- ============================================================================
+
+-- Navigation: Cmd+Left/Right (beginning/end of line)
+vim.keymap.set({'n', 'v'}, '<D-Left>', '^', { desc = 'Move to beginning of line' })
+vim.keymap.set({'n', 'v'}, '<D-Right>', '$', { desc = 'Move to end of line' })
 vim.keymap.set('i', '<D-Left>', '<C-o>^', { desc = 'Move to beginning of line' })
 vim.keymap.set('i', '<D-Right>', '<C-o>$', { desc = 'Move to end of line' })
+
+-- Navigation: Cmd+Up/Down (beginning/end of document)
+vim.keymap.set({'n', 'v'}, '<D-Up>', 'gg', { desc = 'Move to beginning of document' })
+vim.keymap.set({'n', 'v'}, '<D-Down>', 'G', { desc = 'Move to end of document' })
+vim.keymap.set('i', '<D-Up>', '<C-o>gg', { desc = 'Move to beginning of document' })
+vim.keymap.set('i', '<D-Down>', '<C-o>G', { desc = 'Move to end of document' })
+
+-- Clipboard: Cmd+C/V/X (copy/paste/cut)
+vim.keymap.set({'n', 'v'}, '<D-c>', '"+y', { desc = 'Copy to clipboard' })
+vim.keymap.set({'n', 'v'}, '<D-v>', '"+p', { desc = 'Paste from clipboard' })
+vim.keymap.set('i', '<D-v>', '<C-r>+', { desc = 'Paste from clipboard' })
+vim.keymap.set('c', '<D-v>', '<C-r>+', { desc = 'Paste from clipboard' })
+vim.keymap.set({'n', 'v'}, '<D-x>', '"+d', { desc = 'Cut to clipboard' })
+
+-- Select all: Cmd+A
+vim.keymap.set('n', '<D-a>', 'ggVG', { desc = 'Select all' })
+vim.keymap.set('i', '<D-a>', '<Esc>ggVG', { desc = 'Select all' })
+
+-- Undo/Redo: Cmd+Z / Cmd+Shift+Z
+vim.keymap.set({'n', 'i'}, '<D-z>', '<Cmd>undo<CR>', { desc = 'Undo' })
+vim.keymap.set({'n', 'i'}, '<D-S-z>', '<Cmd>redo<CR>', { desc = 'Redo' })
+
+-- Save: Cmd+S
+vim.keymap.set({'n', 'i'}, '<D-s>', '<Cmd>write<CR>', { desc = 'Save file' })
+
+-- Delete to beginning of line: Cmd+Backspace
+vim.keymap.set('i', '<D-BS>', '<C-u>', { desc = 'Delete to beginning of line' })
 
 -- Word deletion with backspace
 vim.keymap.set('i', '<C-w>', '<C-o>db', { desc = 'Delete word backwards' })

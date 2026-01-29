@@ -124,6 +124,18 @@ require("lazy").setup({
   
   -- Quality of Life
   {
+    "okuuva/auto-save.nvim",
+    version = "^1.0.0",
+    event = { "InsertLeave", "TextChanged" },
+    opts = {},
+  },
+  {
+    "mbbill/undotree",
+    keys = {
+      { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Undotree" },
+    },
+  },
+  {
     "folke/which-key.nvim",
     opts = {},
   },

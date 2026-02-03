@@ -127,7 +127,9 @@ require("lazy").setup({
     "okuuva/auto-save.nvim",
     version = "^1.0.0",
     event = { "InsertLeave", "TextChanged" },
-    opts = {},
+    opts = {
+      debounce_delay = 300,
+    },
   },
   {
     "mbbill/undotree",
@@ -173,6 +175,17 @@ require("lazy").setup({
     opts = {}
   },
   
+  -- LaTeX
+  {
+    "lervag/vimtex",
+    lazy = false,
+    init = function()
+      vim.g.vimtex_view_method = "skim"
+      vim.g.vimtex_compiler_method = "latexmk"
+      vim.g.vimtex_quickfix_mode = 0
+    end,
+  },
+
   -- Colorscheme
   {
     "catppuccin/nvim",
@@ -240,10 +253,9 @@ vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find b
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
 vim.keymap.set("n", "<leader>fr", "<cmd>Telescope frecency<CR>", { desc = "Frecency (global)" })
 
--- Quick save and quit
-vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
-vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Quit" })
-vim.keymap.set("n", "<leader>Q", ":qa!<CR>", { desc = "Quit all force" })
+-- Quick quit (q to quit, Q to record macro)
+vim.keymap.set("n", "q", ":q<CR>", { desc = "Quit" })
+vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
 
 -- Paste without yanking in visual mode
 vim.keymap.set("v", "p", '"_dP', { desc = "Paste without yanking" })

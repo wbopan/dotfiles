@@ -95,6 +95,20 @@ has() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Run commands in tmux session named after current directory
+tx() {
+    if [[ -n "$TMUX" ]]; then
+        return 0
+    fi
+
+    if [[ $# -eq 0 ]]; then
+        tmux new -As "${PWD:t}"
+    else
+        local window_name="run_${1}_$RANDOM"
+        tmux new-session -s "$window_name" "$*; $SHELL"
+    fi
+}
+
 #
 # Aliases - Basic
 #
@@ -143,6 +157,10 @@ if has zoxide; then
     eval "$(zoxide init zsh --cmd cd)"
 fi
 
+if has uv; then
+    eval "$(uv generate-shell-completion zsh)"
+    eval "$(uvx --generate-shell-completion zsh)"
+fi
 
 export EDITOR=${commands[nvim]:-${commands[vim]:-vi}}
 

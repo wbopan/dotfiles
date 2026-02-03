@@ -22,5 +22,6 @@ unlink "$DIR/.zshrc"               ~/.zshrc
 unlink "$DIR/.zimrc"               ~/.zimrc
 unlink "$DIR/claude_settings.json" ~/.claude/settings.json
 unlink "$DIR/lazygit.yml"          ~/Library/Application\ Support/lazygit/config.yml
+unlink "$DIR/starship.toml"        ~/.config/starship.toml
 
 echo "Done!"

@@ -25,16 +25,7 @@ zmodule archive
 # Provides ssh-agent integration.
 zmodule ssh
 
-#
-# Prompt
-#
-
-# Exposes how long the last command took to run to prompts.
-zmodule duration-info
-# Exposes git repository status information to prompts.
-zmodule git-info
-# A minimal, fast Zsh prompt with Git integration.
-zmodule sindresorhus/pure --source async.zsh --source pure.zsh
+# Prompt: using starship (configured in .zshrc)
 
 #
 # Completion (MUST come before fzf to avoid double compinit)

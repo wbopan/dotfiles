@@ -5,6 +5,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Ensure directories exist
 mkdir -p ~/.config/nvim
+mkdir -p ~/.config
 mkdir -p ~/.claude
 mkdir -p ~/Library/Application\ Support/lazygit
 
@@ -25,5 +26,6 @@ link "$DIR/.zshrc"               ~/.zshrc
 link "$DIR/.zimrc"               ~/.zimrc
 link "$DIR/claude_settings.json" ~/.claude/settings.json
 link "$DIR/lazygit.yml"          ~/Library/Application\ Support/lazygit/config.yml
+link "$DIR/starship.toml"        ~/.config/starship.toml
 
 echo "Done!"

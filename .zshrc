@@ -115,14 +115,25 @@ has nvim && alias v="nvim"
 has nvim && alias vf='nvim -c "Telescope frecency workspace=CWD"'
 has nvim && alias vr='nvim -c "Telescope frecency"'
 has lazygit && alias lg="lazygit"
+
+#
+# Aliases - Git
+#
+
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias glog='git log --oneline --graph --decorate -20'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gb='git branch'
 has docker && alias dc="docker compose"
 
-# Claude Code with terminal title
-cc() {
-    clear
-    printf '\e]0;✳ New Claude in %s\a' "${PWD##*/}"
-    claude --dangerously-skip-permissions "$@"
-}
+alias cc='claude --allow-dangerously-skip-permissions'
 
 #
 # Plugin Integrations
@@ -392,6 +403,7 @@ health() {
         "uv|uv|brew install uv"
         "rg|rg|brew install ripgrep"
         "nvim|nvim|brew install neovim"
+        "starship|starship|brew install starship"
         "tpm|dir:$HOME/.tmux/plugins/tpm|git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm"
         "op|op|brew install --cask 1password-cli"
         "gh|gh|brew install gh"
@@ -460,3 +472,11 @@ ghostty-claude() {
 
 # Added by Hugging Face CLI installer
 export PATH="/Users/panwenbo/.local/bin:$PATH"
+
+#
+# Starship Prompt
+#
+
+if has starship; then
+    eval "$(starship init zsh)"
+fi

@@ -66,6 +66,19 @@ vim.opt.rtp:prepend(lazypath)
 -- PLUGIN SETUP
 -- ============================================================================
 require("lazy").setup({
+  -- Treesitter (main branch - new API, requires Neovim 0.11+)
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter").install({
+        "bash", "lua", "vim", "vimdoc", "python", "javascript", "typescript", "json", "yaml", "markdown", "latex"
+      })
+    end,
+  },
+
   -- File Management
   {
     "nvim-telescope/telescope.nvim",
@@ -115,7 +128,14 @@ require("lazy").setup({
     "windwp/nvim-autopairs",
     opts = {},
   },
-  "tpope/vim-surround",
+  -- mini.surround (replaces vim-surround, same keymaps: ys/ds/cs)
+  {
+    "echasnovski/mini.surround",
+    version = "*",
+    opts = {
+      mappings = { add = "ys", delete = "ds", replace = "cs", find = "", find_left = "", highlight = "", update_n_lines = "", suffix_last = "", suffix_next = "" },
+    },
+  },
   {
     "numToStr/Comment.nvim",
     opts = {},
@@ -135,6 +155,16 @@ require("lazy").setup({
     "mbbill/undotree",
     keys = {
       { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Undotree" },
+    },
+  },
+  -- Flash navigation (s to jump anywhere)
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
     },
   },
   {
@@ -191,7 +221,7 @@ require("lazy").setup({
     "catppuccin/nvim",
     name = "catppuccin",
     opts = {
-      flavour = "auto", -- will respect terminal's background
+      flavour = "latte", -- light theme
       transparent_background = true,
       background = { -- only works when flavour = "auto"
         light = "latte",

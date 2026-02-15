@@ -49,6 +49,14 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 export NVM_LAZY_LOAD=true
 
 #
+# Linuxbrew (must be before any `has` checks)
+#
+
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+fi
+
+#
 # Zim Framework
 #
 

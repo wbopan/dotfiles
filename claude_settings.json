@@ -15,7 +15,6 @@
       "mcp__brightdata__*",
       "mcp__papers__*",
       "mcp__claude-in-chrome__*",
-
       "Bash(cat *)",
       "Bash(head *)",
       "Bash(tail *)",
@@ -65,7 +64,6 @@
       "Bash(md5 *)",
       "Bash(shasum *)",
       "Bash(base64 *)",
-
       "Bash(mkdir *)",
       "Bash(cp *)",
       "Bash(mv *)",
@@ -79,7 +77,6 @@
       "Bash(unzip *)",
       "Bash(gzip *)",
       "Bash(gunzip *)",
-
       "Bash(uv *)",
       "Bash(npm *)",
       "Bash(npx *)",
@@ -96,7 +93,6 @@
       "Bash(latexmk *)",
       "Bash(pdflatex *)",
       "Bash(bibtex *)",
-
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(ssh *)",
@@ -106,7 +102,6 @@
       "Bash(dig *)",
       "Bash(nslookup *)",
       "Bash(host *)",
-
       "Bash(brew *)",
       "Bash(claude *)",
       "Bash(wandb *)",
@@ -118,7 +113,6 @@
       "Bash(docker-compose *)",
       "Bash(tmux *)",
       "Bash(screen *)",
-
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git status *)",
@@ -166,5 +160,6 @@
     "ralph-loop@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true
 }

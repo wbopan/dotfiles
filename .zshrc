@@ -155,7 +155,8 @@ alias gsw='git switch'
 alias gb='git branch'
 has docker && alias dc="docker compose"
 
-alias cc='claude --allow-dangerously-skip-permissions'
+alias claude='claude --allow-dangerously-skip-permissions'
+alias cc='claude'
 
 #
 # Plugin Integrations
@@ -506,3 +507,4 @@ export PATH="/Users/panwenbo/.local/bin:$PATH"
 if has starship; then
     eval "$(starship init zsh)"
 fi
+export PATH="$HOME/.npm-global/bin:$PATH"

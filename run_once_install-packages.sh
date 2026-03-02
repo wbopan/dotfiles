@@ -24,5 +24,4 @@ fi
 # macOS-specific
 if [ "$OS" = "Darwin" ]; then
     brew install terminal-notifier
-    brew install --cask 1password-cli
 fi

@@ -1,0 +1,51 @@
+# Zim Framework Configuration
+
+#
+# Modules
+#
+
+# Sets sane Zsh built-in environment options.
+zmodule environment
+# Provides handy git aliases and functions.
+zmodule git
+# Applies correct bindkeys for input events.
+zmodule input
+# Sets a custom terminal title.
+zmodule termtitle
+# Utility aliases and functions. Adds colour to ls, grep and less.
+zmodule utility
+# Adds aliases and better defaults for eza/exa.
+zmodule exa
+# Sets up direnv shell integration.
+zmodule direnv
+# Node Version Manager for Zsh (lazy-loaded for performance).
+zmodule lukechilds/zsh-nvm
+# Provides archive extraction helpers.
+zmodule archive
+# Provides ssh-agent integration.
+zmodule ssh
+
+# Prompt: using starship (configured in .zshrc)
+
+#
+# Completion (MUST come before fzf to avoid double compinit)
+#
+
+# Additional completion definitions for Zsh.
+zmodule zsh-users/zsh-completions --fpath src
+# Enables and configures smart and extensive tab completion.
+zmodule completion
+# Sets up fzf shell integration (requires fzf >= 0.48.0).
+# NOTE: fzf must come AFTER completion module to avoid double compinit
+zmodule fzf
+
+#
+# Modules that must be initialized last
+#
+
+# Fish-like syntax highlighting for Zsh, must be sourced after completion.
+zmodule zsh-users/zsh-syntax-highlighting
+# Fish-like history search, must be sourced after zsh-syntax-highlighting.
+zmodule zsh-users/zsh-history-substring-search
+# Fish-like autosuggestions for Zsh.
+zmodule zsh-users/zsh-autosuggestions

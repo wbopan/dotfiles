@@ -1,0 +1,448 @@
+-- ============================================================================
+-- MINIMAL NEOVIM CONFIG WITH ESSENTIAL PLUGINS
+-- ============================================================================
+
+-- ============================================================================
+-- BASIC OPTIONS
+-- ============================================================================
+vim.opt.number = true              -- Show line numbers
+vim.opt.relativenumber = true      -- Relative line numbers
+vim.opt.tabstop = 4                -- Tab width
+vim.opt.shiftwidth = 4             -- Indent width
+vim.opt.softtabstop = 4            -- Insert/delete 4 spaces when pressing <Tab>/<BS>
+vim.opt.expandtab = true           -- Use spaces instead of tabs
+vim.opt.smartindent = true         -- Smart indentation
+vim.opt.wrap = true                -- Enable line wrap
+vim.opt.swapfile = false           -- Disable swap files
+vim.opt.backup = false             -- Disable backup files
+vim.opt.undofile = true            -- Enable persistent undo
+vim.opt.termguicolors = true       -- Enable 24-bit colors
+vim.opt.scrolloff = 8              -- Keep 8 lines visible when scrolling
+vim.opt.signcolumn = "yes"         -- Always show sign column
+vim.opt.updatetime = 50            -- Faster completion
+vim.opt.clipboard = "unnamedplus"  -- Use system clipboard
+vim.opt.completeopt = "menu,menuone,noselect,fuzzy"  -- fuzzy matching (0.11+)
+vim.opt.ignorecase = true          -- Case insensitive search
+vim.opt.smartcase = true           -- Override ignorecase if search contains capitals
+vim.opt.hlsearch = true            -- Highlight search results
+vim.opt.incsearch = true           -- Incremental search
+vim.opt.splitbelow = true          -- Horizontal splits go below
+vim.opt.splitright = true          -- Vertical splits go right
+vim.opt.cursorline = true          -- Highlight current line
+vim.opt.confirm = true             -- Ask to save before quitting
+vim.opt.autoread = true            -- Auto-reload files changed outside of Vim
+vim.o.winborder = "rounded"        -- Default border for floating windows (0.11+)
+vim.o.title = true                 -- Enable window title
+vim.o.titlestring = "%{&buftype == 'terminal' ? b:term_title : expand('%:t') . ' - NVIM'}"
+
+-- Diagnostics configuration (0.11+: virtual_text is opt-in)
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+})
+
+-- ============================================================================
+-- LEADER KEY
+-- ============================================================================
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+-- ============================================================================
+-- BOOTSTRAP LAZY.NVIM
+-- ============================================================================
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- ============================================================================
+-- PLUGIN SETUP
+-- ============================================================================
+require("lazy").setup({
+  -- Treesitter (main branch - new API, requires Neovim 0.11+)
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter").install({
+        "bash", "lua", "vim", "vimdoc", "python", "javascript", "typescript", "json", "yaml", "markdown", "latex"
+      })
+    end,
+  },
+
+  -- File Management
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      defaults = {
+        file_ignore_patterns = { "node_modules", ".git/" },
+        path_display = {
+          "filename_first",  -- Show filename before path
+        },
+        -- Smart path display for duplicate filenames
+        dynamic_preview_title = true,
+      },
+      pickers = {
+        find_files = {
+          -- Show parent directory for context
+          path_display = { "smart" },
+        },
+      },
+    },
+  },
+  {
+    "nvim-telescope/telescope-frecency.nvim",
+    version = "*",
+    config = function()
+      require("frecency").setup({
+        db_safe_mode = false, -- Auto-clean stale entries without prompting
+      })
+      require("telescope").load_extension("frecency")
+    end,
+  },
+
+  -- File Explorer
+  {
+    'stevearc/oil.nvim',
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {
+      watch_for_changes = true,
+      keymaps = {
+        ["<leader>cp"] = {
+          desc = "Copy absolute path",
+          callback = function()
+            local oil = require("oil")
+            local entry = oil.get_cursor_entry()
+            if entry then
+              local path = oil.get_current_dir() .. entry.name
+              vim.fn.setreg("+", path)
+              vim.notify(path, vim.log.levels.INFO)
+            end
+          end,
+        },
+        ["<leader>cc"] = {
+          desc = "Copy relative path",
+          callback = function()
+            local oil = require("oil")
+            local entry = oil.get_cursor_entry()
+            if entry then
+              local abs = oil.get_current_dir() .. entry.name
+              local rel = vim.fn.fnamemodify(abs, ":~:.")
+              vim.fn.setreg("+", rel)
+              vim.notify(rel, vim.log.levels.INFO)
+            end
+          end,
+        },
+        ["<leader>cn"] = {
+          desc = "Copy filename",
+          callback = function()
+            local entry = require("oil").get_cursor_entry()
+            if entry then
+              vim.fn.setreg("+", entry.name)
+              vim.notify(entry.name, vim.log.levels.INFO)
+            end
+          end,
+        },
+      },
+    },
+    -- Optional dependencies
+    dependencies = { { "echasnovski/mini.icons", opts = {} } },
+    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    lazy = false,
+  },
+
+  -- Editing Enhancements
+  {
+    "windwp/nvim-autopairs",
+    opts = {},
+  },
+  -- mini.surround (replaces vim-surround, same keymaps: ys/ds/cs)
+  {
+    "echasnovski/mini.surround",
+    version = "*",
+    opts = {
+      mappings = { add = "ys", delete = "ds", replace = "cs", find = "", find_left = "", highlight = "", update_n_lines = "", suffix_last = "", suffix_next = "" },
+    },
+  },
+  {
+    "numToStr/Comment.nvim",
+    opts = {},
+  },
+
+  
+  -- Quality of Life
+  {
+    "okuuva/auto-save.nvim",
+    version = "^1.0.0",
+    event = { "InsertLeave", "TextChanged" },
+    opts = {
+      debounce_delay = 300,
+    },
+  },
+  {
+    "mbbill/undotree",
+    keys = {
+      { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Undotree" },
+    },
+  },
+  -- Flash navigation (s to jump anywhere)
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+    },
+  },
+  {
+    "folke/which-key.nvim",
+    opts = {},
+  },
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = {
+      options = {
+        theme = 'auto',
+        component_separators = { left = '', right = ''},
+        section_separators = { left = '', right = ''},
+      }
+    },
+  },
+
+  -- Code Autocompletion
+  {
+    'saghen/blink.cmp',
+    version = '1.*',
+    ---@module 'blink.cmp'
+    ---@type blink.cmp.Config
+    opts = {
+      keymap = { preset = 'super-tab' },
+      fuzzy = { implementation = "prefer_rust_with_warning" },
+    },
+  },
+  {
+    "zbirenbaum/copilot.lua",
+    event = "InsertEnter",
+    cmd = "Copilot",
+    dependencies = {
+      {
+        "copilotlsp-nvim/copilot-lsp",
+      },
+    },
+    opts = {}
+  },
+  
+  -- LaTeX
+  {
+    "lervag/vimtex",
+    lazy = false,
+    init = function()
+      vim.g.vimtex_view_method = "skim"
+      vim.g.vimtex_compiler_method = "latexmk"
+      vim.g.vimtex_quickfix_mode = 0
+    end,
+  },
+
+  -- Colorscheme
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    opts = {
+      flavour = "mocha", -- dark theme
+      transparent_background = true,
+      background = { -- only works when flavour = "auto"
+        light = "latte",
+        dark = "mocha",
+      },
+      -- Boost contrast for better readability with transparent backgrounds
+      styles = {
+        comments = { "italic" },
+        conditionals = { "bold" },
+        keywords = { "bold" },
+        functions = { "bold" },
+      },
+      color_overrides = {
+        mocha = {
+          -- Brighten text colors for better contrast
+          text = "#e0e0e0",      -- Lighter main text (was #cdd6f4)
+          subtext1 = "#c5c5c5",  -- Lighter subtext
+          subtext0 = "#a8a8a8",  -- Lighter secondary text
+        },
+      },
+      integrations = {
+        native_lsp = { enabled = true },
+        telescope = { enabled = true },
+        which_key = true,
+      },
+    },
+    config = function(_, opts)
+      require("catppuccin").setup(opts)
+      vim.cmd.colorscheme("catppuccin")
+    end,
+  },
+
+})
+
+-- Terminal keymap (exit terminal mode with jk)
+vim.keymap.set("t", "jk", "<C-\\><C-n>", { desc = "Quit terminal mode" })
+
+-- ============================================================================
+-- KEY MAPPINGS
+-- ============================================================================
+
+-- Clear search highlight
+vim.keymap.set("n", "<Esc>", ":noh<CR>", { desc = "Clear search highlight" })
+
+-- Quit insert mode with jk
+vim.keymap.set("i", "jk", "<Esc>", { desc = "Quit insert mode" })
+
+-- Better indenting in visual mode
+vim.keymap.set("v", "<", "<gv", { desc = "Indent left" })
+vim.keymap.set("v", ">", ">gv", { desc = "Indent right" })
+
+-- Toggle file explorer
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+-- Open Oil when nvim is launched with no arguments
+vim.opt.shortmess:append("I") -- suppress intro message
+vim.g._started_with_stdin = false
+vim.api.nvim_create_autocmd("StdinReadPre", {
+  callback = function() vim.g._started_with_stdin = true end,
+})
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    if vim.fn.argc() == 0 and vim.api.nvim_buf_get_name(0) == "" and not vim.g._started_with_stdin then
+      vim.schedule(function()
+        require("oil").open(".")
+      end)
+    end
+  end,
+})
+
+-- Telescope mappings
+vim.keymap.set("n", "<leader>ff", "<cmd>Telescope frecency workspace=CWD<CR>", { desc = "Find files (project)" })
+vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+vim.keymap.set("n", "<leader>fr", "<cmd>Telescope frecency<CR>", { desc = "Frecency (global)" })
+
+-- Quick quit (q to quit, Q to record macro)
+vim.keymap.set("n", "q", ":q<CR>", { desc = "Quit" })
+vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
+
+-- Paste without yanking in visual mode
+vim.keymap.set("v", "p", '"_dP', { desc = "Paste without yanking" })
+
+-- Copy file paths to clipboard
+vim.keymap.set("n", "<leader>cp", ":let @+=expand('%:p')<CR>", { desc = "Copy absolute file path" })
+vim.keymap.set("n", "<leader>cc", ":let @+=expand('%')<CR>", { desc = "Copy relative file path" })
+vim.keymap.set("n", "<leader>cd", ":let @+=expand('%:p:h')<CR>", { desc = "Copy directory path" })
+
+-- ============================================================================
+-- TERMINAL AUTO-INSERT MODE
+-- ============================================================================
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    vim.cmd("startinsert")
+  end,
+})
+
+-- ============================================================================
+-- MACOS/EMACS-STYLE INSERT MODE NAVIGATION
+-- ============================================================================
+
+-- Beginning and end of line (Emacs-style)
+vim.keymap.set('i', '<C-a>', '<C-o>^', { desc = 'Move to beginning of line' })
+vim.keymap.set('i', '<C-e>', '<C-o>$', { desc = 'Move to end of line' })
+
+-- Word navigation with Alt/Option keys
+vim.keymap.set('i', '<M-Left>', '<C-o>b', { desc = 'Move back one word' })
+vim.keymap.set('i', '<M-Right>', '<C-o>w', { desc = 'Move forward one word' })
+
+-- ============================================================================
+-- MACOS CMD KEY SHORTCUTS (for GUI terminals like Ghostty/Kitty)
+-- ============================================================================
+
+-- Navigation: Cmd+Left/Right (beginning/end of line)
+vim.keymap.set({'n', 'v'}, '<D-Left>', '^', { desc = 'Move to beginning of line' })
+vim.keymap.set({'n', 'v'}, '<D-Right>', '$', { desc = 'Move to end of line' })
+vim.keymap.set('i', '<D-Left>', '<C-o>^', { desc = 'Move to beginning of line' })
+vim.keymap.set('i', '<D-Right>', '<C-o>$', { desc = 'Move to end of line' })
+
+-- Navigation: Cmd+Up/Down (beginning/end of document)
+vim.keymap.set({'n', 'v'}, '<D-Up>', 'gg', { desc = 'Move to beginning of document' })
+vim.keymap.set({'n', 'v'}, '<D-Down>', 'G', { desc = 'Move to end of document' })
+vim.keymap.set('i', '<D-Up>', '<C-o>gg', { desc = 'Move to beginning of document' })
+vim.keymap.set('i', '<D-Down>', '<C-o>G', { desc = 'Move to end of document' })
+
+-- Clipboard: Cmd+C/V/X (copy/paste/cut)
+vim.keymap.set({'n', 'v'}, '<D-c>', '"+y', { desc = 'Copy to clipboard' })
+vim.keymap.set({'n', 'v'}, '<D-v>', '"+p', { desc = 'Paste from clipboard' })
+vim.keymap.set('i', '<D-v>', '<C-r>+', { desc = 'Paste from clipboard' })
+vim.keymap.set('c', '<D-v>', '<C-r>+', { desc = 'Paste from clipboard' })
+vim.keymap.set({'n', 'v'}, '<D-x>', '"+d', { desc = 'Cut to clipboard' })
+
+-- Select all: Cmd+A
+vim.keymap.set('n', '<D-a>', 'ggVG', { desc = 'Select all' })
+vim.keymap.set('i', '<D-a>', '<Esc>ggVG', { desc = 'Select all' })
+
+-- Undo/Redo: Cmd+Z / Cmd+Shift+Z
+vim.keymap.set({'n', 'i'}, '<D-z>', '<Cmd>undo<CR>', { desc = 'Undo' })
+vim.keymap.set({'n', 'i'}, '<D-S-z>', '<Cmd>redo<CR>', { desc = 'Redo' })
+
+-- Save: Cmd+S
+vim.keymap.set({'n', 'i'}, '<D-s>', '<Cmd>write<CR>', { desc = 'Save file' })
+
+-- Delete to beginning of line: Cmd+Backspace
+vim.keymap.set('i', '<D-BS>', '<C-u>', { desc = 'Delete to beginning of line' })
+
+-- Word deletion with backspace
+vim.keymap.set('i', '<C-w>', '<C-o>db', { desc = 'Delete word backwards' })
+vim.keymap.set('i', '<M-BS>', '<C-w>', { desc = 'Delete word backwards (Alt+Backspace)' })
+
+-- ============================================================================
+-- NORMAL MODE: TREAT BRACKETED PASTE AS KEYSTROKES
+-- ============================================================================
+-- When IME commits text in Normal mode, terminals send it as bracketed paste,
+-- which bypasses command interpretation. Override vim.paste() to feed the text
+-- as keystrokes instead of inserting it.
+local original_paste = vim.paste
+vim.paste = function(lines, phase)
+  if vim.api.nvim_get_mode().mode == 'n' then
+    local text = table.concat(lines, '\n')
+    if #text <= 20 then
+      vim.api.nvim_feedkeys(text, 'm', false)
+      return true
+    end
+  end
+  return original_paste(lines, phase)
+end
+
+-- ============================================================================
+-- AUTO-RELOAD FILES ON EXTERNAL CHANGES
+-- ============================================================================
+
+-- Simple auto-reload: reload files when they change externally, but only if no unsaved changes
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  callback = function()
+    -- Skip if in command mode or if buffer has unsaved changes
+    if vim.fn.mode() == "c" or vim.bo.modified then
+      return
+    end
+    -- Check and reload files that changed externally
+    vim.cmd("checktime")
+  end,
+})

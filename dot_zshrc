@@ -497,7 +497,7 @@ ghostty-claude() {
     ghostty-tab "$cmd" ~/Repos/workspace
 }
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 #
 # Starship Prompt

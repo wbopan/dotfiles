@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set +e  # Don't exit on errors — missing packages shouldn't block dotfile deployment
 
 OS="$(uname -s)"
 

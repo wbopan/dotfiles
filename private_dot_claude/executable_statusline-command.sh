@@ -66,9 +66,9 @@ short_cwd=$(echo "$short_cwd" | awk -F'/' '{
 # --- session duration ---
 transcript=$(echo "$input" | jq -r '.transcript_path // empty')
 if [ -n "$transcript" ] && [ -f "$transcript" ]; then
-  mtime=$(stat -f %m "$transcript" 2>/dev/null || stat -c %Y "$transcript" 2>/dev/null)
+  ctime=$(stat -f %B "$transcript" 2>/dev/null || stat -c %W "$transcript" 2>/dev/null)
   now=$(date +%s)
-  elapsed=$(( now - mtime ))
+  elapsed=$(( now - ctime ))
   if [ "$elapsed" -lt 60 ]; then
     session_dur="<1m"
   elif [ "$elapsed" -lt 3600 ]; then

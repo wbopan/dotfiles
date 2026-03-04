@@ -93,7 +93,7 @@ fi
 
 # --- assemble (starship style: icons + prepositions, no pipes) ---
 printf "%b" "$ctx_part"
-printf " ${PURPLE}${ICON_HOST} %s${RST}" "$host"
+printf " ${GRAY}·${RST} ${PURPLE}${ICON_HOST} %s${RST}" "$host"
 if [ -n "$branch" ]; then
   printf " ${GRAY}on${RST} ${GREEN}${ICON_BRANCH} %s${RST}" "$branch"
 fi

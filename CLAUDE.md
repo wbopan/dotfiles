@@ -28,6 +28,8 @@ chezmoi cd                     # cd into the source directory
 
 Git auto-commit and auto-push are enabled (`.chezmoi.toml.tmpl`), so `chezmoi edit` or `chezmoi add` will automatically commit and push changes.
 
+**After editing any dotfile in this repo, always run `chezmoi apply` to sync changes to the home directory.** If tmux config (`dot_tmux.conf`) was modified, also run `tmux source ~/.tmux.conf` to reload it.
+
 ## Encryption
 
 Uses age encryption with key at `~/.config/chezmoi/key.txt`. Encrypted files have `.age` extension and `encrypted_` prefix. Currently encrypted: `~/.env` and `~/.config/gh/hosts.yml`.

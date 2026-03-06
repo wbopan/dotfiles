@@ -260,8 +260,8 @@ require("lazy").setup({
     "catppuccin/nvim",
     name = "catppuccin",
     opts = {
-      flavour = "mocha", -- dark theme
-      transparent_background = true,
+      flavour = "latte", -- light theme
+      transparent_background = false,
       background = { -- only works when flavour = "auto"
         light = "latte",
         dark = "mocha",
@@ -273,14 +273,7 @@ require("lazy").setup({
         keywords = { "bold" },
         functions = { "bold" },
       },
-      color_overrides = {
-        mocha = {
-          -- Brighten text colors for better contrast
-          text = "#e0e0e0",      -- Lighter main text (was #cdd6f4)
-          subtext1 = "#c5c5c5",  -- Lighter subtext
-          subtext0 = "#a8a8a8",  -- Lighter secondary text
-        },
-      },
+      color_overrides = {},
       integrations = {
         native_lsp = { enabled = true },
         telescope = { enabled = true },

@@ -154,7 +154,7 @@ alias gco='git checkout'
 alias gsw='git switch'
 alias gb='git branch'
 has docker && alias dc="docker compose"
-alias claude='claude --dangerously-skip-permissions'
+
 alias cc='claude'
 
 #

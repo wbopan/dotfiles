@@ -155,9 +155,6 @@ alias gsw='git switch'
 alias gb='git branch'
 has docker && alias dc="docker compose"
 
-alias claude='claude --allow-dangerously-skip-permissions'
-alias cc='claude'
-
 #
 # Plugin Integrations
 #

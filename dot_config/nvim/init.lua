@@ -261,7 +261,7 @@ require("lazy").setup({
     name = "catppuccin",
     opts = {
       flavour = "latte", -- light theme
-      transparent_background = false,
+      transparent_background = true,
       background = { -- only works when flavour = "auto"
         light = "latte",
         dark = "mocha",

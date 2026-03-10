@@ -44,11 +44,17 @@ Uses age encryption with key at `~/.config/chezmoi/key.txt`. Encrypted files hav
 | `dot_config/nvim/init.lua` | `~/.config/nvim/init.lua` | Neovim: lazy.nvim, telescope, oil.nvim, blink.cmp, catppuccin, vimtex |
 | `dot_config/starship.toml` | `~/.config/starship.toml` | Starship prompt: nerd font symbols |
 | `dot_config/lazygit/config.yml` | Lazygit config | Editor integration with nvim |
+| `dot_config/fish/config.fish` | `~/.config/fish/config.fish` | Fish shell: PATH, aliases, zoxide, proxy detection, command timer |
+| `dot_config/fish/conf.d/zz-profile.fish` | Fish conf.d | Sources `~/.env` variables |
+| `dot_config/fish/functions/*.fish` | Fish functions | `notify`, `health`, `tx`, `ghostty-*` (macOS), `tailscale` (macOS) |
 | `private_dot_claude/` | `~/.claude/` | Claude Code settings, hooks, statusline script |
 
 ## Key Design Decisions
 
-- **Shell framework**: Zim (not oh-my-zsh). Module load order matters — completion before fzf, syntax-highlighting before autosuggestions.
+- **Dual shell**: Zsh (zim framework) and Fish are both configured. Fish is the primary shell.
+- **Cross-platform**: `.chezmoiignore` excludes macOS-only fish functions (`ghostty-*`, `tailscale`) on non-Darwin. `config.fish` handles Linuxbrew and `batcat` alias automatically.
+- **Fish plugins**: Managed by fisher (autopair, fzf.fish, nvm.fish) — NOT tracked in chezmoi.
+- **Zsh framework**: Zim (not oh-my-zsh). Module load order matters — completion before fzf, syntax-highlighting before autosuggestions.
 - **Notification system**: `notify()` in zshrc sends OSC escape sequences for terminal notifications, with tmux passthrough support and ntfy.sh fallback for detached sessions.
 - **Command timer**: Long-running commands (>180s) from a whitelist trigger notifications via `notify()`.
 - **Claude Code hooks**: `executable_notify.sh` implements delayed (30s) macOS notifications via `terminal-notifier` with click-to-jump-to-tmux-pane. `executable_notify-cancel.sh` cancels pending notifications.

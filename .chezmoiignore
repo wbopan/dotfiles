@@ -2,3 +2,10 @@ README.md
 LICENSE
 CLAUDE.md
 .nfs*
+
+{{ if ne .chezmoi.os "darwin" }}
+.config/fish/functions/ghostty-claude.fish
+.config/fish/functions/ghostty-tab.fish
+.config/fish/functions/tailscale.fish
+.config/fish/conf.d/custom.fish
+{{ end }}

@@ -1,6 +1,6 @@
 function health --description 'Check if recommended tools are installed'
     set -l deps \
-        "brew|brew|/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" \
+        "brew|brew|https://brew.sh" \
         "zoxide|zoxide|brew install zoxide" \
         "direnv|direnv|brew install direnv" \
         "fzf|fzf|brew install fzf" \
@@ -13,8 +13,11 @@ function health --description 'Check if recommended tools are installed'
         "nvim|nvim|brew install neovim" \
         "starship|starship|brew install starship" \
         "tpm|dir:$HOME/.tmux/plugins/tpm|git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm" \
-        "op|op|brew install --cask 1password-cli" \
         "gh|gh|brew install gh"
+
+    if test (uname) = Darwin
+        set -a deps "op|op|brew install --cask 1password-cli"
+    end
 
     for dep in $deps
         set -l parts (string split '|' -- $dep)

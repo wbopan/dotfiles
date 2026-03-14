@@ -1,0 +1,4 @@
+export PATH="/opt/homebrew/bin:$PATH"
+export PYTHONBREAKPOINT="ipdb.set_trace"
+
+. "$HOME/.cargo/env"

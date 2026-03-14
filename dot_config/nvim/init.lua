@@ -273,7 +273,6 @@ require("lazy").setup({
         keywords = { "bold" },
         functions = { "bold" },
       },
-      color_overrides = {},
       integrations = {
         native_lsp = { enabled = true },
         telescope = { enabled = true },

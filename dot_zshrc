@@ -458,44 +458,6 @@ health() {
 # Ghostty Tab Commands
 #
 
-# Execute pending command on shell startup (used by ghostty-tab function)
-if [[ -f /tmp/.ghostty_cmd ]]; then
-    local __ghostty_cmd
-    __ghostty_cmd=$(</tmp/.ghostty_cmd)
-    rm -f /tmp/.ghostty_cmd
-    eval "$__ghostty_cmd"
-fi
-
-# Open a new Ghostty tab with an optional command
-# Usage: ghostty-tab "command"           # Opens tab in ~, runs command
-#        ghostty-tab "command" ~/dir     # Opens tab in ~/dir, runs command
-#        ghostty-tab "" ~/dir            # Opens tab in ~/dir, no command
-ghostty-tab() {
-    local cmd="$1"
-    local dir="${2:-$HOME}"
-
-    if [[ -n "$cmd" ]]; then
-        printf '%s' "$cmd" > /tmp/.ghostty_cmd
-    fi
-
-    open -a Ghostty "$dir"
-}
-
-# Open Claude Code in a new Ghostty tab
-# Usage: ghostty-claude              # Opens claude in ~/Repos/workspace
-#        ghostty-claude "fix the bug" # Opens claude with initial query
-ghostty-claude() {
-    local query="$1"
-    local cmd='clear && claude --dangerously-skip-permissions'
-
-    if [[ -n "$query" ]]; then
-        cmd+=" ${(qq)query}"
-    fi
-
-    cmd+=' && exit'
-    ghostty-tab "$cmd" ~/Repos/workspace
-}
-
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 #

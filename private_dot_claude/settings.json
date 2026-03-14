@@ -148,14 +148,7 @@
       "Bash(git describe *)",
       "Bash(git shortlog *)",
       "Bash(git reflog *)",
-      "Bash(zsh -ic 'print -l $precmd_functions')",
-      "Bash(zsh -ic 'echo \"\"PROMPT:\"\"; echo \"\"$PROMPT\"\"; echo; echo \"\"RPROMPT:\"\"; echo \"\"$RPROMPT\"\"; echo; echo \"\"PS1:\"\"; echo \"\"$PS1\"\"')",
-      "Bash(zsh -ic 'typeset -f prompt_pure_precmd | head -50')",
-      "Bash(git -C /Users/panwenbo/Repos/dotfiles status)",
-      "Bash(git commit:*)",
-      "Bash(bash:*)",
-      "Bash(git push:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd *)"
     ],
     "defaultMode": "default"
   },
@@ -175,7 +168,5 @@
     "skill-creator@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true
   },
-  "alwaysThinkingEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high"
+  "skipDangerousModePermissionPrompt": true
 }

@@ -24,7 +24,7 @@ host=$(hostname -s)
 
 # --- context window progress bar ---
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
-input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty')
+input_tokens=$(echo "$input" | jq -r '.context_window.current_usage | ((.input_tokens // 0) + (.cache_creation_input_tokens // 0) + (.cache_read_input_tokens // 0)) | if . == 0 then empty else . end')
 if [ -n "$used_pct" ]; then
   used_int=$(printf "%.0f" "$used_pct")
   filled=$(( used_int / 10 ))

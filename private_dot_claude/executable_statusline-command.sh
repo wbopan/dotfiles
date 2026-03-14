@@ -24,6 +24,7 @@ host=$(hostname -s)
 
 # --- context window progress bar ---
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty')
 if [ -n "$used_pct" ]; then
   used_int=$(printf "%.0f" "$used_pct")
   filled=$(( used_int / 10 ))
@@ -40,7 +41,14 @@ if [ -n "$used_pct" ]; then
   else
     bar_color="$RED"
   fi
-  ctx_part="${bar_color}${ICON_CTX} [${filled_bar}${GRAY}${empty_bar}${bar_color}]${RST} ${bar_color}${used_int}%${RST}"
+  # Format token count as compact string (e.g. 23k, 128k)
+  if [ -n "$input_tokens" ] && [ "$input_tokens" != "null" ]; then
+    token_k=$(( input_tokens / 1000 ))
+    token_label="${token_k}k"
+  else
+    token_label="?k"
+  fi
+  ctx_part="${bar_color}${ICON_CTX} [${filled_bar}${GRAY}${empty_bar}${bar_color}]${RST} ${bar_color}${token_label}${RST}"
 else
   ctx_part="${GRAY}${ICON_CTX} [──────────]${RST}"
 fi

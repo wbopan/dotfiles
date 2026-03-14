@@ -1,0 +1,9 @@
+# My custom profile settings
+export PATH="/usr/local/bin:$PATH"
+
+# Source API keys from ~/.env (managed by chezmoi, age-encrypted)
+[ -f "$HOME/.env" ] && . "$HOME/.env"
+
+# Additional custom settings
+alias ll="ls -la"
+. "$HOME/.cargo/env"
